@@ -46,9 +46,9 @@ And let it running...
 #### Usage
 1. Open your browser's Developer Tool to get every JSON response
 2. Open FoE and click on the Town Hall -> News -> Event History
-3. Click in the menu tab and enable filter options
+3. Click on the menu tab and enable filter options
 4. Filter only "Social Interactions" events
-5. Now, copy every JSON response from your admin (Right click -> Copy -> Copy response)
+5. Now, copy every JSON response from your admin panel (Right click -> Copy -> Copy response)
 
 #### Results
 You'll see how many times every player helped you
