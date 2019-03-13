@@ -9,16 +9,22 @@ if platform.system() == "Windows":
 else:
 	clear = lambda: os.system("clear")
 
-#Terminal width
-dash = 80
 prev = ""
 players = {}
+
 while True:
-	#Load JSON data
+	#Is data changed?
 	if pyperclip.paste() != prev:
+		valid = 0
 		try:
+			#Is data a valid JSON?
 			data = json.loads(pyperclip.paste())
 			prev = pyperclip.paste()
+			valid = 1
+		except Exception as e:
+			pass
+		if valid:
+			#Do the magic
 			for line in data:
 				if "responseData" in line and type(line["responseData"]) == type({}) and "events" in line["responseData"]:
 					for evento in line["responseData"]["events"]:
@@ -33,6 +39,4 @@ while True:
 					print("Assist:")
 					for name in players:
 						print("\t{0: <{space}}: {1}".format(name, players[name][1], space=max([len(nome) for nome in players]) + 1))
-		except Exception as e:
-			pass
 	time.sleep(1)
