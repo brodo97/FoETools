@@ -15,14 +15,15 @@ players = {}
 while True:
 	#Is data changed?
 	if pyperclip.paste() != prev:
+		prev = pyperclip.paste()
 		valid = 0
 		try:
 			#Is data a valid JSON?
 			data = json.loads(pyperclip.paste())
-			prev = pyperclip.paste()
 			valid = 1
 		except Exception as e:
 			pass
+
 		if valid:
 			#Do the magic
 			for line in data:
