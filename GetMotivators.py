@@ -67,7 +67,7 @@ with open("MotivatorsHistory.csv", "r") as file:
 		players[agrs[0]] = agrs[1:]
 
 try:
-	with open("it6.forgeofempires.com.har", "r") as file:
+	with open([file for file in os.listdir(".") if ".har" in file][0], "r") as file:
 		data = json.loads(file.read())
 	valid = 1
 except Exception as e:
