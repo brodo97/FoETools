@@ -5,7 +5,7 @@ Some tools you can use to manage your villages. Mostly written in Python 3
 ## [FlatDeposits](FlatDeposits.py)
 
 #### Usage
-1. Use your browser's Developer Tool to get the heaviest JSON response (For me ~60KB. Higher era may generate heavier data) named 'json?h=*session id*' and paste it in a file located in the same folder as [FlatDeposits](FlatDeposits.py).
+1. Use your browser's Developer Tool to get the heaviest JSON response (For me ~60KB. Higher era may generate heavier data) named 'json?h=*session id*' and paste it in a file located in the same folder of [FlatDeposits](FlatDeposits.py).
 2. Save the file as "data.json"
 3. Run it!
 
