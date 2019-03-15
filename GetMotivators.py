@@ -61,10 +61,11 @@ terminalWidth = shutil.get_terminal_size().columns
 players = {}
 valid = 1
 
-with open("MotivatorsHistory.csv", "r") as file:
-	for line in file:
-		agrs = line.rstrip("\n").split(",")
-		players[agrs[0]] = agrs[1:]
+if "MotivatorsHistory.csv" in os.listdir("."):
+	with open("MotivatorsHistory.csv", "r") as file:
+		for line in file:
+			agrs = line.rstrip("\n").split(",")
+			players[agrs[0]] = agrs[1:]
 
 try:
 	with open([file for file in os.listdir(".") if ".har" in file][0], "r") as file:
