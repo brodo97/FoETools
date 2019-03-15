@@ -1,13 +1,5 @@
-import json, pyperclip, time, os, platform, shutil
+import json, time, os, platform, shutil
 from datetime import datetime, timedelta
-
-weekDays = {"Lun": 0,
-			"Mar": 1,
-			"Mer": 2,
-			"Gio": 3,
-			"Ven": 4,
-			"Sab": 5,
-			"Dom": 6}
 
 if platform.system() == "Windows":
 	clear = lambda: os.system("cls")
@@ -26,7 +18,15 @@ def centerPrint(sentence, width):
 				return
 	return
 
-def getEventTimestamp(event):
+weekDays = {"Lun": 0,
+			"Mar": 1,
+			"Mer": 2,
+			"Gio": 3,
+			"Ven": 4,
+			"Sab": 5,
+			"Dom": 6}
+
+def getEventDate(event):
 	offDays = 0
 	offHours = 0
 	offMinutes = 0
@@ -51,55 +51,55 @@ def getEventTimestamp(event):
 
 	offHours = eventHour - hourNow
 	offMinutes = eventMinute - minuteNow 
+	date = datetime.fromtimestamp(time.time()) + timedelta(days=offDays, hours=offHours, minutes=offMinutes)
 
-	return datetime.timestamp(datetime.fromtimestamp(time.time()) + timedelta(days=offDays, hours=offHours, minutes=offMinutes))
+	return "{yyyy}/{mm}/{dd}_{hh}:{mi}".format(yyyy=date.year, mm=date.month, dd=date.day, hh=date.hour, mi=date.minute)
 
-terminalWidth =  shutil.get_terminal_size().columns
-prev = ""
+
+data = None
+terminalWidth = shutil.get_terminal_size().columns
 players = {}
-intro = "Waiting for valid data"
-introLen = len(intro)
+valid = 1
+
+with open("MotivatorsHistory.csv", "r") as file:
+	for line in file:
+		agrs = line.rstrip("\n").split(",")
+		players[agrs[0]] = agrs[1:]
+
+try:
+	with open("it6.forgeofempires.com.har", "r") as file:
+		data = json.loads(file.read())
+	valid = 1
+except Exception as e:
+	pass
+
+if valid and data:
+	for entry in data["log"]["entries"]:
+		for header in entry["response"]["headers"]:
+			if header["name"] == "content-type" and header["value"] == "application/json":
+				for line in json.loads(entry["response"]["content"]["text"]):
+					if "responseData" in line and type(line["responseData"]) == type({}) and "events" in line["responseData"]:
+						for evento in line["responseData"]["events"]:
+							if "interaction_type" in evento and evento["interaction_type"] in ["motivate", "polivate_failed"]:
+								eventDate = getEventDate(evento["date"])
+								if evento["other_player"]["name"] not in players:
+									players[evento["other_player"]["name"]] = [eventDate]
+								else:
+									if eventDate not in players[evento["other_player"]["name"]]:
+										players[evento["other_player"]["name"]].append(eventDate)
+
 clear()
 
-centerPrint("#" * int(introLen + 6), terminalWidth)
-centerPrint("#{}#".format(" " * int(introLen + 4)), terminalWidth)
-centerPrint("#  {}  #".format(intro), terminalWidth)
-centerPrint("#{}#".format(" " * int(introLen + 4)), terminalWidth)
-centerPrint("#" * int(introLen + 6), terminalWidth)
+longestName = max([len(nome) for nome in players]) + 1
 
-while True:
-	#Is data changed?
-	if pyperclip.paste() != prev:
-		prev = pyperclip.paste()
-		valid = 0
-		try:
-			#Is data a valid JSON?
-			data = json.loads(pyperclip.paste())
-			valid = 1
-		except Exception as e:
-			pass
+centerPrint("#" * int(longestName + 8 + 1 if longestName%2==1 else 0), terminalWidth)
 
-		if valid:
-			#Do the magic
-			for line in data:
-				if "responseData" in line and type(line["responseData"]) == type({}) and "events" in line["responseData"]:
-					for evento in line["responseData"]["events"]:
-						if "interaction_type" in evento and evento["interaction_type"] in ["motivate", "polivate_failed"]:
-							if evento["other_player"]["name"] not in players:
-								eventTimestamp = getEventTimestamp(evento["date"])
-								players[evento["other_player"]["name"]] = [[eventTimestamp], 1]
-							else:
-								if evento["date"] not in players[evento["other_player"]["name"]][0]:
-									players[evento["other_player"]["name"]][1] += 1
+for name in players:
+	centerPrint("#  {0: <{space}}: {1}  #".format(name, len(players[name]), space=longestName), terminalWidth)
 
-					clear()
+centerPrint("#" * int(longestName + 8 + 1 if longestName%2==1 else 0), terminalWidth)
 
-					longestName = max([len(nome) for nome in players]) + 1
-
-					centerPrint("#" * int(longestName + 8), terminalWidth)
-
-					for name in players:
-						centerPrint("#  {0: <{space}}: {1}  #".format(name, players[name][1], space=longestName), terminalWidth)
-
-					centerPrint("#" * int(longestName + 8), terminalWidth)
-	time.sleep(1)
+if valid and data:
+	with open("MotivatorsHistory.csv", "w") as file:
+		for name in players:
+			file.write("{},{}\n".format(name, ",".join(players[name])))
