@@ -74,6 +74,8 @@ try:
 except Exception as e:
 	pass
 
+dashWidth = 0
+
 if valid and data:
 	for entry in data["log"]["entries"]:
 		for header in entry["response"]["headers"]:
@@ -89,17 +91,20 @@ if valid and data:
 									if eventDate not in players[evento["other_player"]["name"]]:
 										players[evento["other_player"]["name"]].append(eventDate)
 
+								if len(evento["other_player"]["name"]) + len(players[evento["other_player"]["name"]]) + 7 > dashWidth:
+									dashWidth = len(evento["other_player"]["name"]) + len(players[evento["other_player"]["name"]]) + 5
+
 clear()
 
-longestName = max([len(nome) for nome in players]) + 1
+longestName = max([len(nome) for nome in players])
 countPerPlayer = {name:len(players[name]) for name in players}
 
-centerPrint("#" * int(longestName + 8 + 1 if longestName%2==1 else 0), terminalWidth)
+centerPrint("#" * dashWidth, terminalWidth)
 
 for name in reversed(sorted(countPerPlayer.items(), key=operator.itemgetter(1))):
-	centerPrint("#  {0: <{space}}: {1}  #".format(name[0], len(players[name[0]]), space=longestName), terminalWidth)
+	centerPrint("{0: <{space}}: {1}".format(name[0], len(players[name[0]]), space=longestName), terminalWidth)
 
-centerPrint("#" * int(longestName + 8 + 1 if longestName%2==1 else 0), terminalWidth)
+centerPrint("#" * dashWidth, terminalWidth)
 
 if valid and data:
 	with open("MotivatorsHistory.csv", "w") as file:
