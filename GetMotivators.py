@@ -1,4 +1,4 @@
-import json, time, os, platform, shutil
+import json, time, os, platform, shutil, operator
 from datetime import datetime, timedelta
 
 if platform.system() == "Windows":
@@ -92,11 +92,12 @@ if valid and data:
 clear()
 
 longestName = max([len(nome) for nome in players]) + 1
+countPerPlayer = {name:len(players[name]) for name in players}
 
 centerPrint("#" * int(longestName + 8 + 1 if longestName%2==1 else 0), terminalWidth)
 
-for name in players:
-	centerPrint("#  {0: <{space}}: {1}  #".format(name, len(players[name]), space=longestName), terminalWidth)
+for name in reversed(sorted(countPerPlayer.items(), key=operator.itemgetter(1))):
+	centerPrint("#  {0: <{space}}: {1}  #".format(name[0], len(players[name[0]]), space=longestName), terminalWidth)
 
 centerPrint("#" * int(longestName + 8 + 1 if longestName%2==1 else 0), terminalWidth)
 
@@ -104,3 +105,5 @@ if valid and data:
 	with open("MotivatorsHistory.csv", "w") as file:
 		for name in players:
 			file.write("{},{}\n".format(name, ",".join(players[name])))
+
+input()
