@@ -41,3 +41,15 @@ Windows
 
 #### Results
 You'll see how many times every player helped you
+
+#### Optional
+Install matplotlib to draw a heatmap to show the number of motivation/day
+
+Linux
+```bash
+  $ pip3 install matplotlib
+```
+Windows
+```batch
+  C:\> py -3 -m pip install matplotlib
+```
