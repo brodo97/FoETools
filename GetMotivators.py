@@ -1,5 +1,5 @@
 import json, time, os, platform, shutil, operator
-from datetime import datetime, timedelta
+from datetime import datetime as dt, timedelta
 
 if platform.system() == "Windows":
 	clear = lambda: os.system("cls")
@@ -35,9 +35,9 @@ def getEventDate(event):
 	eventHour = int(event.split(":")[0][-2:])
 	eventMinute = int(event.split(":")[1])
 
-	weekdayNow = datetime.today().weekday()
-	hourNow = datetime.today().hour
-	minuteNow = datetime.today().minute
+	weekdayNow = dt.today().weekday()
+	hourNow = dt.today().hour
+	minuteNow = dt.today().minute
 
 	if eventDay == "ier":
 		offDays = -1
@@ -51,10 +51,9 @@ def getEventDate(event):
 
 	offHours = eventHour - hourNow
 	offMinutes = eventMinute - minuteNow 
-	date = datetime.fromtimestamp(time.time()) + timedelta(days=offDays, hours=offHours, minutes=offMinutes)
+	date = dt.fromtimestamp(time.time()) + timedelta(days=offDays, hours=offHours, minutes=offMinutes)
 
-	return "{yyyy}/{mm}/{dd}_{hh}:{mi}".format(yyyy=date.year, mm=date.month, dd=date.day, hh=date.hour, mi=date.minute)
-
+	return "{yyyy}/{mm}/{dd}".format(yyyy=date.year, mm=date.month, dd=date.day)
 
 data = None
 terminalWidth = shutil.get_terminal_size().columns
@@ -92,7 +91,7 @@ if valid and data:
 										players[evento["other_player"]["name"]].append(eventDate)
 
 								if len(evento["other_player"]["name"]) + len(players[evento["other_player"]["name"]]) + 7 > dashWidth:
-									dashWidth = len(evento["other_player"]["name"]) + len(players[evento["other_player"]["name"]]) + 5
+									dashWidth = len(evento["other_player"]["name"]) + len(players[evento["other_player"]["name"]]) + 3
 
 clear()
 
@@ -111,4 +110,69 @@ if valid and data:
 		for name in players:
 			file.write("{},{}\n".format(name, ",".join(players[name])))
 
-input()
+try:
+	import numpy as np
+	import matplotlib.pyplot as plt
+except Exception as e:
+	print("'pip install matplotlib' to show the graph")
+	input()
+else:
+	def show_heatmap(dati):
+		dates, data = generate_data(dati)
+		fig, ax = plt.subplots(figsize=(6, 8))
+		calendar_heatmap(ax, dates, data)
+		plt.show()
+
+	def generate_data(dati):
+		lista_d = []
+		lista_s = []
+		for nome in dati:
+			lista_d += [dt.strptime(giorno, "%Y/%m/%d") for giorno in dati[nome]]
+			lista_s += [giorno for giorno in dati[nome]]
+		num = len(set(lista_s))
+		data = [lista_s.count(conto) for conto in sorted(set(lista_s), key = lambda date: dt.strptime(date, '%Y/%m/%d'))]
+		start = min(lista_d)
+		dates = [start + timedelta(days=i) for i in range(num)]
+		return dates, data
+
+	def calendar_array(dates, data):
+		i, j = zip(*[d.isocalendar()[1:] for d in dates])
+		i = np.array(i) - min(i)
+		j = np.array(j) - 1
+		ni = max(i) + 1
+
+		calendar = np.nan * np.zeros((ni, 7))
+		calendar[i, j] = data
+		return i, j, calendar
+
+	def calendar_heatmap(ax, dates, data):
+		i, j, calendar = calendar_array(dates, data)
+		im = ax.imshow(calendar, interpolation='none', cmap='summer')
+		label_days(ax, dates, i, j, calendar)
+		label_months(ax, dates, i, j, calendar)
+		ax.figure.colorbar(im)
+
+	def label_days(ax, dates, i, j, calendar):
+		ni, nj = calendar.shape
+		day_of_month = np.nan * np.zeros((ni, 7))
+		day_of_month[i, j] = [d.day for d in dates]
+	 
+		for (i, j), day in np.ndenumerate(day_of_month):
+			if np.isfinite(day):
+				ax.text(j, i, int(day), ha='center', va='center')
+	 
+		ax.set(xticks=np.arange(7),
+			   xticklabels=['M', 'T', 'W', 'R', 'F', 'S', 'S'])
+		ax.xaxis.tick_top()
+
+	def label_months(ax, dates, i, j, calendar):
+		month_labels = np.array(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+								 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+		months = np.array([d.month for d in dates])
+		uniq_months = sorted(set(months))
+		yticks = [i[months == m].mean() for m in uniq_months]
+		labels = [month_labels[m - 1] for m in uniq_months]
+		ax.set(yticks=yticks)
+		ax.set_yticklabels(labels, rotation=90)
+
+	show_heatmap(players)
