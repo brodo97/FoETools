@@ -57,14 +57,28 @@ def getEventDate(event):
 
 data = None
 terminalWidth = shutil.get_terminal_size().columns
-players = {}
+friends = {}
+neighbors = {}
+guilds = {}
 valid = 1
 
-if "MotivatorsHistory.csv" in os.listdir("."):
-	with open("MotivatorsHistory.csv", "r") as file:
+if "MotivatorsHistory - Friends.csv" in os.listdir("."):
+	with open("MotivatorsHistory - Friends.csv", "r") as file:
 		for line in file:
 			agrs = line.rstrip("\n").split(",")
-			players[agrs[0]] = agrs[1:]
+			friends[agrs[0]] = agrs[1:]
+
+if "MotivatorsHistory - Neighbors.csv" in os.listdir("."):
+	with open("MotivatorsHistory - Neighbors.csv", "r") as file:
+		for line in file:
+			agrs = line.rstrip("\n").split(",")
+			neighbors[agrs[0]] = agrs[1:]
+
+if "MotivatorsHistory - Guilds.csv" in os.listdir("."):
+	with open("MotivatorsHistory - Guilds.csv", "r") as file:
+		for line in file:
+			agrs = line.rstrip("\n").split(",")
+			guilds[agrs[0]] = agrs[1:]
 
 try:
 	with open([file for file in os.listdir(".") if ".har" in file][0], "r") as file:
@@ -72,8 +86,6 @@ try:
 	valid = 1
 except Exception as e:
 	pass
-
-dashWidth = 0
 
 if valid and data:
 	for entry in data["log"]["entries"]:
@@ -84,31 +96,76 @@ if valid and data:
 						for evento in line["responseData"]["events"]:
 							if "interaction_type" in evento and evento["interaction_type"] in ["motivate", "polivate_failed"]:
 								eventDate = getEventDate(evento["date"])
-								if evento["other_player"]["name"] not in players:
-									players[evento["other_player"]["name"]] = [eventDate]
-								else:
-									if eventDate not in players[evento["other_player"]["name"]]:
-										players[evento["other_player"]["name"]].append(eventDate)
 
-								if len(evento["other_player"]["name"]) + len(players[evento["other_player"]["name"]]) + 7 > dashWidth:
-									dashWidth = len(evento["other_player"]["name"]) + len(players[evento["other_player"]["name"]]) + 3
+								if evento["other_player"]["is_friend"]:
+									if evento["other_player"]["name"] not in friends:
+										friends[evento["other_player"]["name"]] = [eventDate]
+									else:
+										if eventDate not in friends[evento["other_player"]["name"]]:
+											friends[evento["other_player"]["name"]].append(eventDate)
 
+								if evento["other_player"]["is_neighbor"]:
+									if evento["other_player"]["name"] not in neighbors:
+										neighbors[evento["other_player"]["name"]] = [eventDate]
+									else:
+										if eventDate not in neighbors[evento["other_player"]["name"]]:
+											neighbors[evento["other_player"]["name"]].append(eventDate)
+
+								if evento["other_player"]["is_guild_member"]:
+									if evento["other_player"]["name"] not in guilds:
+										guilds[evento["other_player"]["name"]] = [eventDate]
+									else:
+										if eventDate not in guilds[evento["other_player"]["name"]]:
+											guilds[evento["other_player"]["name"]].append(eventDate)
 clear()
 
-longestName = max([len(nome) for nome in players])
-countPerPlayer = {name:len(players[name]) for name in players}
+longest_friend_name = max([len(nome) for nome in friends])
+count_x_player_friends = {name:len(friends[name]) for name in friends}
 
-centerPrint("#" * dashWidth, terminalWidth)
+longest_neighbor_name = max([len(nome) for nome in neighbors])
+count_x_player_neighbor = {name:len(neighbors[name]) for name in neighbors}
 
-for name in reversed(sorted(countPerPlayer.items(), key=operator.itemgetter(1))):
-	centerPrint("{0: <{space}}: {1}".format(name[0], len(players[name[0]]), space=longestName), terminalWidth)
+longest_guild_name = max([len(nome) for nome in guilds])
+count_x_player_guild= {name:len(guilds[name]) for name in guilds}
 
-centerPrint("#" * dashWidth, terminalWidth)
+print("#"* terminalWidth)
+centerPrint("FRIENDS", terminalWidth)
+
+for name in reversed(sorted(count_x_player_friends.items(), key=operator.itemgetter(1))):
+	centerPrint("{0: <{space}}: {1}".format(name[0], len(friends[name[0]]), space=longest_friend_name), terminalWidth)
+
+print("#"* terminalWidth)
+
+centerPrint("NEIGHBORS", terminalWidth)
+
+for name in reversed(sorted(count_x_player_neighbor.items(), key=operator.itemgetter(1))):
+	centerPrint("{0: <{space}}: {1}".format(name[0], len(neighbors[name[0]]), space=longest_neighbor_name), terminalWidth)
+
+print("#"* terminalWidth)
+
+centerPrint("GUILD", terminalWidth)
+
+for name in reversed(sorted(count_x_player_guild.items(), key=operator.itemgetter(1))):
+	centerPrint("{0: <{space}}: {1}".format(name[0], len(guilds[name[0]]), space=longest_guild_name), terminalWidth)
+
+print("#"* terminalWidth)
 
 if valid and data:
-	with open("MotivatorsHistory.csv", "w") as file:
-		for name in players:
-			file.write("{},{}\n".format(name, ",".join(players[name])))
+	with open("MotivatorsHistory - Friends.csv", "w") as file:
+		for name in friends:
+			file.write("{},{}\n".format(name, ",".join(friends[name])))
+
+	with open("MotivatorsHistory - Neighbors.csv", "w") as file:
+		for name in friends:
+			file.write("{},{}\n".format(name, ",".join(friends[name])))
+
+	with open("MotivatorsHistory - Guilds.csv", "w") as file:
+		for name in friends:
+			file.write("{},{}\n".format(name, ",".join(friends[name])))
+			
+total = dict(friends)
+total.update(neighbors)
+total.update(guilds)
 
 try:
 	import numpy as np
@@ -175,4 +232,4 @@ else:
 		ax.set(yticks=yticks)
 		ax.set_yticklabels(labels, rotation=90)
 
-	show_heatmap(players)
+	show_heatmap(total)
