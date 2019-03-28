@@ -1,5 +1,6 @@
 import json, time, os, platform, shutil, operator
 from datetime import datetime as dt, timedelta
+from pprint import pprint
 
 if platform.system() == "Windows":
 	clear = lambda: os.system("cls")
@@ -156,28 +157,73 @@ if valid and data:
 			file.write("{},{}\n".format(name, ",".join(friends[name])))
 
 	with open("MotivatorsHistory - Neighbors.csv", "w") as file:
-		for name in friends:
-			file.write("{},{}\n".format(name, ",".join(friends[name])))
+		for name in neighbors:
+			file.write("{},{}\n".format(name, ",".join(neighbors[name])))
 
 	with open("MotivatorsHistory - Guilds.csv", "w") as file:
-		for name in friends:
-			file.write("{},{}\n".format(name, ",".join(friends[name])))
-			
-total = dict(friends)
-total.update(neighbors)
-total.update(guilds)
+		for name in guilds:
+			file.write("{},{}\n".format(name, ",".join(guilds[name])))
+
+warn = 0
+
+if len(set(neighbors) & set(guilds)) > 0:
+	print("Neighbors and guild members:\n{}\n".format(", ".join(list(set(neighbors) & set(guilds)))))
+	warn = 1
+
+if len(set(neighbors) & set(friends)) > 0:
+	print("Neighbors and friends:\n{}\n".format(", ".join(list(set(neighbors) & set(friends)))))
+	warn = 1
+
+if len(set(friends) & set(guilds)) > 0:
+	print("Friends and guild members:\n{}\n".format(", ".join(list(set(friends) & set(guilds)))))
+	warn = 1
+
+total = {}
+for name in friends:
+	if name not in total:
+		total[name] = friends[name]
+	else:
+		for date in friends[name]:
+			if date not in total[name]:
+				total[name].append(date)
+
+for name in neighbors:
+	if name not in total:
+		total[name] = neighbors[name]
+	else:
+		for date in neighbors[name]:
+			if date not in total[name]:
+				total[name].append(date)
+
+for name in guilds:
+	if name not in total:
+		total[name] = guilds[name]
+	else:
+		for date in guilds[name]:
+			if date not in total[name]:
+				total[name].append(date)
 
 try:
 	import numpy as np
 	import matplotlib.pyplot as plt
+	if warn:
+		print("This may alter graphs' fidelity")
 except Exception as e:
 	print("'pip install matplotlib' to show the graph")
 	input()
 else:
-	def show_heatmap(dati):
-		dates, data = generate_data(dati)
-		fig, ax = plt.subplots(figsize=(6, 8))
-		calendar_heatmap(ax, dates, data)
+	def show_heatmap():
+		fig = plt.figure()
+		fig.subplots_adjust(hspace=0.4, wspace=0.4)
+		ax = fig.add_subplot(2, 2, 1)
+		calendar_heatmap(ax, *generate_data(total), "autumn", "Total Assists")
+		ax = fig.add_subplot(2, 2, 2)
+		calendar_heatmap(ax, *generate_data(friends), "summer", "Friends' Assists")
+		ax = fig.add_subplot(2, 2, 3)
+		calendar_heatmap(ax, *generate_data(neighbors), "spring", "Neighbors' Assists")
+		ax = fig.add_subplot(2, 2, 4)
+		calendar_heatmap(ax, *generate_data(guilds), "winter", "Guild's Assists")
+
 		plt.show()
 
 	def generate_data(dati):
@@ -202,9 +248,10 @@ else:
 		calendar[i, j] = data
 		return i, j, calendar
 
-	def calendar_heatmap(ax, dates, data):
+	def calendar_heatmap(ax, dates, data, color, title):
 		i, j, calendar = calendar_array(dates, data)
-		im = ax.imshow(calendar, interpolation='none', cmap='summer')
+		im = ax.imshow(calendar, interpolation='none', cmap=color)
+		ax.set_title(title)
 		label_days(ax, dates, i, j, calendar)
 		label_months(ax, dates, i, j, calendar)
 		ax.figure.colorbar(im)
@@ -232,4 +279,11 @@ else:
 		ax.set(yticks=yticks)
 		ax.set_yticklabels(labels, rotation=90)
 
-	show_heatmap(total)
+	def callback_left_button(event):
+		print('Left button pressed')
+
+
+	def callback_right_button(event):
+		print('Right button pressed')
+
+	show_heatmap()
