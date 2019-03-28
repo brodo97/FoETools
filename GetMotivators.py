@@ -81,43 +81,48 @@ if "MotivatorsHistory - Guilds.csv" in os.listdir("."):
 			agrs = line.rstrip("\n").split(",")
 			guilds[agrs[0]] = agrs[1:]
 
-try:
-	with open([file for file in os.listdir(".") if ".har" in file][0], "r") as file:
-		data = json.loads(file.read())
-	valid = 1
-except Exception as e:
-	pass
+har_files = []
+for file_name in list(filter(lambda name: "har" in name, os.listdir("."))):
+	try:
+		with open([file for file in os.listdir(".") if ".har" in file][0], "r") as file:
+			data = json.loads(file.read())
+		
+		har_files.append(data)
+		valid = 1
+	except Exception as e:
+		pass
 
 if valid and data:
-	for entry in data["log"]["entries"]:
-		for header in entry["response"]["headers"]:
-			if header["name"] == "content-type" and header["value"] == "application/json":
-				for line in json.loads(entry["response"]["content"]["text"]):
-					if "responseData" in line and type(line["responseData"]) == type({}) and "events" in line["responseData"]:
-						for evento in line["responseData"]["events"]:
-							if "interaction_type" in evento and evento["interaction_type"] in ["motivate", "polivate_failed"]:
-								eventDate = getEventDate(evento["date"])
+	for data in har_files:
+		for entry in data["log"]["entries"]:
+			for header in entry["response"]["headers"]:
+				if header["name"] == "content-type" and header["value"] == "application/json":
+					for line in json.loads(entry["response"]["content"]["text"]):
+						if "responseData" in line and type(line["responseData"]) == type({}) and "events" in line["responseData"]:
+							for evento in line["responseData"]["events"]:
+								if "interaction_type" in evento and evento["interaction_type"] in ["motivate", "polivate_failed"]:
+									eventDate = getEventDate(evento["date"])
 
-								if evento["other_player"]["is_friend"]:
-									if evento["other_player"]["name"] not in friends:
-										friends[evento["other_player"]["name"]] = [eventDate]
-									else:
-										if eventDate not in friends[evento["other_player"]["name"]]:
-											friends[evento["other_player"]["name"]].append(eventDate)
+									if evento["other_player"]["is_friend"]:
+										if evento["other_player"]["name"] not in friends:
+											friends[evento["other_player"]["name"]] = [eventDate]
+										else:
+											if eventDate not in friends[evento["other_player"]["name"]]:
+												friends[evento["other_player"]["name"]].append(eventDate)
 
-								if evento["other_player"]["is_neighbor"]:
-									if evento["other_player"]["name"] not in neighbors:
-										neighbors[evento["other_player"]["name"]] = [eventDate]
-									else:
-										if eventDate not in neighbors[evento["other_player"]["name"]]:
-											neighbors[evento["other_player"]["name"]].append(eventDate)
+									if evento["other_player"]["is_neighbor"]:
+										if evento["other_player"]["name"] not in neighbors:
+											neighbors[evento["other_player"]["name"]] = [eventDate]
+										else:
+											if eventDate not in neighbors[evento["other_player"]["name"]]:
+												neighbors[evento["other_player"]["name"]].append(eventDate)
 
-								if evento["other_player"]["is_guild_member"]:
-									if evento["other_player"]["name"] not in guilds:
-										guilds[evento["other_player"]["name"]] = [eventDate]
-									else:
-										if eventDate not in guilds[evento["other_player"]["name"]]:
-											guilds[evento["other_player"]["name"]].append(eventDate)
+									if evento["other_player"]["is_guild_member"]:
+										if evento["other_player"]["name"] not in guilds:
+											guilds[evento["other_player"]["name"]] = [eventDate]
+										else:
+											if eventDate not in guilds[evento["other_player"]["name"]]:
+												guilds[evento["other_player"]["name"]].append(eventDate)
 clear()
 
 longest_friend_name = max([len(nome) for nome in friends])
