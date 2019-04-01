@@ -7,6 +7,16 @@ if platform.system() == "Windows":
 else:
 	clear = lambda: os.system("clear")
 
+def creation_date(path_to_file):
+	if platform.system() == 'Windows':
+		return os.path.getmtime(path_to_file)
+	else:
+		stat = os.stat(path_to_file)
+		try:
+			return stat.st_birthtime
+		except AttributeError:
+			return stat.st_mtime
+
 def centerPrint(sentence, width):
 	if len(sentence) <= width - 2:
 		print(sentence.center(width))
@@ -27,19 +37,14 @@ weekDays = {"Lun": 0,
 			"Sab": 5,
 			"Dom": 6}
 
-def getEventDate(event):
+def getEventDate(event, today):
 	offDays = 0
-	offHours = 0
-	offMinutes = 0
 
 	eventDay = event[:3]
-	eventHour = int(event.split(":")[0][-2:])
-	eventMinute = int(event.split(":")[1])
 
-	weekdayNow = dt.today().weekday()
-	hourNow = dt.today().hour
-	minuteNow = dt.today().minute
-
+	weekdayNow = dt.fromtimestamp(today).weekday()
+	if eventDay == "ogg":
+		return dt.fromtimestamp(today).strftime("%Y/%m/%d")
 	if eventDay == "ier":
 		offDays = -1
 	elif eventDay != "ogg":
@@ -50,11 +55,9 @@ def getEventDate(event):
 		elif weekdayNow == weekDays[eventDay]:
 			offDays = -7
 
-	offHours = eventHour - hourNow
-	offMinutes = eventMinute - minuteNow 
-	date = dt.fromtimestamp(time.time()) + timedelta(days=offDays, hours=offHours, minutes=offMinutes)
+	date = dt.fromtimestamp(today) + timedelta(days=offDays)
 
-	return "{yyyy}/{mm}/{dd}".format(yyyy=date.year, mm=date.month, dd=date.day)
+	return date.strftime("%Y/%m/%d")
 
 data = None
 terminalWidth = shutil.get_terminal_size().columns
@@ -81,19 +84,20 @@ if "MotivatorsHistory - Guilds.csv" in os.listdir("."):
 			agrs = line.rstrip("\n").split(",")
 			guilds[agrs[0]] = agrs[1:]
 
-har_files = []
-for file_name in list(filter(lambda name: "har" in name, os.listdir("."))):
+har_files = {}
+for file_name in list(filter(lambda name: name.endswith(".har"), os.listdir("."))):
 	try:
-		with open([file for file in os.listdir(".") if ".har" in file][0], "r") as file:
+		with open(file_name, "r") as file:
 			data = json.loads(file.read())
 		
-		har_files.append(data)
+		har_files[file_name] = data
 		valid = 1
 	except Exception as e:
 		pass
 
 if valid and data:
-	for data in har_files:
+	for file_name in har_files:
+		data = har_files[file_name]
 		for entry in data["log"]["entries"]:
 			for header in entry["response"]["headers"]:
 				if header["name"] == "content-type" and header["value"] == "application/json":
@@ -101,8 +105,8 @@ if valid and data:
 						if "responseData" in line and type(line["responseData"]) == type({}) and "events" in line["responseData"]:
 							for evento in line["responseData"]["events"]:
 								if "interaction_type" in evento and evento["interaction_type"] in ["motivate", "polivate_failed"]:
-									eventDate = getEventDate(evento["date"])
-
+									eventDate = getEventDate(evento["date"], creation_date(file_name))
+									
 									if evento["other_player"]["is_friend"]:
 										if evento["other_player"]["name"] not in friends:
 											friends[evento["other_player"]["name"]] = [eventDate]
@@ -123,6 +127,8 @@ if valid and data:
 										else:
 											if eventDate not in guilds[evento["other_player"]["name"]]:
 												guilds[evento["other_player"]["name"]].append(eventDate)
+
+
 clear()
 
 longest_friend_name = max([len(nome) for nome in friends])
@@ -141,14 +147,12 @@ for name in reversed(sorted(count_x_player_friends.items(), key=operator.itemget
 	centerPrint("{0: <{space}}: {1}".format(name[0], len(friends[name[0]]), space=longest_friend_name), terminalWidth)
 
 print("#"* terminalWidth)
-
 centerPrint("NEIGHBORS", terminalWidth)
 
 for name in reversed(sorted(count_x_player_neighbor.items(), key=operator.itemgetter(1))):
 	centerPrint("{0: <{space}}: {1}".format(name[0], len(neighbors[name[0]]), space=longest_neighbor_name), terminalWidth)
 
 print("#"* terminalWidth)
-
 centerPrint("GUILD", terminalWidth)
 
 for name in reversed(sorted(count_x_player_guild.items(), key=operator.itemgetter(1))):
@@ -219,7 +223,8 @@ except Exception as e:
 else:
 	def show_heatmap():
 		fig = plt.figure()
-		fig.subplots_adjust(hspace=0.4, wspace=0.4)
+
+		fig.subplots_adjust(hspace=0.25, wspace=0.25)
 		ax = fig.add_subplot(2, 2, 1)
 		calendar_heatmap(ax, *generate_data(total), "autumn", "Total Assists")
 		ax = fig.add_subplot(2, 2, 2)
@@ -228,7 +233,6 @@ else:
 		calendar_heatmap(ax, *generate_data(neighbors), "spring", "Neighbors' Assists")
 		ax = fig.add_subplot(2, 2, 4)
 		calendar_heatmap(ax, *generate_data(guilds), "winter", "Guild's Assists")
-
 		plt.show()
 
 	def generate_data(dati):
@@ -237,7 +241,7 @@ else:
 		for nome in dati:
 			lista_d += [dt.strptime(giorno, "%Y/%m/%d") for giorno in dati[nome]]
 			lista_s += [giorno for giorno in dati[nome]]
-		num = len(set(lista_s))
+		num = (max(lista_d) - min(lista_d)).days + 1
 		data = [lista_s.count(conto) for conto in sorted(set(lista_s), key = lambda date: dt.strptime(date, '%Y/%m/%d'))]
 		start = min(lista_d)
 		dates = [start + timedelta(days=i) for i in range(num)]
@@ -271,7 +275,7 @@ else:
 				ax.text(j, i, int(day), ha='center', va='center')
 	 
 		ax.set(xticks=np.arange(7),
-			   xticklabels=['M', 'T', 'W', 'R', 'F', 'S', 'S'])
+			   xticklabels=['M', 'T', 'W', 'T', 'F', 'S', 'S'])
 		ax.xaxis.tick_top()
 
 	def label_months(ax, dates, i, j, calendar):
@@ -283,12 +287,5 @@ else:
 		labels = [month_labels[m - 1] for m in uniq_months]
 		ax.set(yticks=yticks)
 		ax.set_yticklabels(labels, rotation=90)
-
-	def callback_left_button(event):
-		print('Left button pressed')
-
-
-	def callback_right_button(event):
-		print('Right button pressed')
 
 	show_heatmap()
