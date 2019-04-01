@@ -90,14 +90,14 @@ for file_name in list(filter(lambda name: name.endswith(".har"), os.listdir(".")
 		with open(file_name, "r") as file:
 			data = json.loads(file.read())
 		
-		har_files[file_name] = data
+		har_files[file_name] = [data, creation_date(file_name)]
 		valid = 1
 	except Exception as e:
 		pass
 
 if valid and data:
 	for file_name in har_files:
-		data = har_files[file_name]
+		data = har_files[file_name][0]
 		for entry in data["log"]["entries"]:
 			for header in entry["response"]["headers"]:
 				if header["name"] == "content-type" and header["value"] == "application/json":
@@ -105,7 +105,7 @@ if valid and data:
 						if "responseData" in line and type(line["responseData"]) == type({}) and "events" in line["responseData"]:
 							for evento in line["responseData"]["events"]:
 								if "interaction_type" in evento and evento["interaction_type"] in ["motivate", "polivate_failed"]:
-									eventDate = getEventDate(evento["date"], creation_date(file_name))
+									eventDate = getEventDate(evento["date"], har_files[file_name][1])
 									
 									if evento["other_player"]["is_friend"]:
 										if evento["other_player"]["name"] not in friends:
