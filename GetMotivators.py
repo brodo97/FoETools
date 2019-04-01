@@ -104,7 +104,7 @@ if valid and data:
 					for line in json.loads(entry["response"]["content"]["text"]):
 						if "responseData" in line and type(line["responseData"]) == type({}) and "events" in line["responseData"]:
 							for evento in line["responseData"]["events"]:
-								if "interaction_type" in evento and evento["interaction_type"] in ["motivate", "polivate_failed", "plunder"]:
+								if "interaction_type" in evento and evento["interaction_type"] in ["motivate", "polivate_failed"]:
 									eventDate = getEventDate(evento["date"], har_files[file_name][1])
 									
 									if evento["other_player"]["is_friend"]:
