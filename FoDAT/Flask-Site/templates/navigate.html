@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="center">Cosa cercare per {{name}}?</h1>
+<div class="row">
+    <div class="col s12">
+        <div class="card">
+	        <div class="card-content row">
+                <div class="col s12 m6">
+            		<div class="card blue darken-2">
+            			<div class="card-content white-text">
+            				<span class="card-title">Informazioni beni</span>
+            				<p>Tabelle dettagliate sui singoli beni che vengono prodotti, è possibile vedere i delta fra i giorni registrati. Non verranno suddivisi per era</p>
+            			</div>
+            			<div class="card-action">
+            				<a class="black-text white btn" href="getData/goods">Seleziona</a>
+            			</div>
+            		</div>
+            	</div>
+            	<div class="col s12 m6">
+            		<div class="card red darken-2">
+            			<div class="card-content white-text">
+            				<span class="card-title">Informazioni inventario</span>
+            				<p>Tabelle dettagliate su tutto ciò che viene prodotto, compresi oggetti/potenziamenti/edifici nell'inventario. Non verranno suddivisi per era</p>
+            			</div>
+            			<div class="card-action">
+            				<a class="black-text white btn" href="getData/inventory">Seleziona</a>
+            			</div>
+            		</div>
+            	</div>
+            	<div class="col s12 m6">
+            		<div class="card orange darken-2">
+            			<div class="card-content white-text">
+            				<span class="card-title">Informazioni ere</span>
+            				<p>Tabelle e grafici per analizzare l'andamento dei beni raggruppati per era. Con delta e andamento complessivo</p>
+            			</div>
+            			<div class="card-action">
+            				<a class="black-text white btn" href="getData/eras">Seleziona</a>
+            			</div>
+            		</div>
+            	</div>
+            	<div class="col s12 m6">
+            		<div class="card green darken-2">
+            			<div class="card-content white-text">
+            				<span class="card-title">Informazioni sull'esercito</span>
+            				<p>Tabelle dettagliate su ogni tipo di unità combattente che si possiede, non suddivise per era</p>
+            			</div>
+            			<div class="card-action">
+            				<a class="black-text white btn" href="getData/army">Seleziona</a>
+            			</div>
+            		</div>
+            	</div>
+            	{% if guildID != None %}
+            	<div class="col s12 m6">
+            		<div class="card purple darken-1">
+            			<div class="card-content white-text">
+            				<span class="card-title">Informazioni sulla gilda</span>
+            				<p>Tabelle e grafici per analizzare l'andamento dei beni della gilda raggruppati per era. Con delta e andamento complessivo</p>
+            			</div>
+            			<div class="card-action">
+            				<a class="black-text white btn" href="getData/guild">Seleziona</a>
+            			</div>
+            		</div>
+            	</div>
+            	{%endif%}
+            	{% if isadmin %}
+            	<div class="col s12 m6">
+            		<div class="card black">
+            			<div class="card-content white-text">
+            				<span class="card-title">Pannello Admin</span>
+            				<p>Dai,</p>
+            				<p>lo sai cosa puoi fare...</p>
+            			</div>
+            			<div class="card-action">
+            				<a class="black-text white btn" href="admin">Hackera</a>
+            			</div>
+            		</div>
+            	</div>
+            	{%endif%}
+            	<div class="col s12">
+                	<ul class="collapsible">
+                        <li>
+                            <div class="collapsible-header"><i class="material-icons">filter_drama</i>Mostra API Key</div>
+                            <div class="collapsible-body"><span>API Key: {{api_key}}</span></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+	</div>
+</div>
+<div class="fixed-action-btn">
+	<a class="btn-floating btn-large red" href="/logout" title="Logout">
+		<i class="large material-icons">arrow_left</i>
+	</a>
+</div>
+<script>
+    $(document).ready(function(){
+        $('.collapsible').collapsible();
+    });
+</script>
+{% endblock %}

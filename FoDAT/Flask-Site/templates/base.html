@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <link href="{{ url_for('static', filename='materialize.css') }}" media="screen,projection" rel="stylesheet" type="text/css">
+      <meta content="width=device-width, initial-scale=1.0" name="viewport">
+      <meta name="description" content="Sito per analisi dati di FoE (Forge of Empires).">
+      <meta name="author" content="Mattia Brunelli">
+      <title>Brodino</title>
+      <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='soup.ico') }}"/>
+      <meta charset="utf-8">
+      {% block head %}{% endblock %}
+    </head>
+    <body class="blue lighten-5">
+      <nav>
+        <div class="nav-wrapper indigo">
+          <a class="brand-logo center white-text" href="/">Sito utile</a>
+        </div>
+      </nav>
+      <div class="container">
+          <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+          <script src="{{url_for('static', filename='materialize.js')}}" type="text/javascript"></script>
+          {% block content %}{% endblock %}
+      </div>
+    </body>
+</html>
