@@ -2,5 +2,5 @@ ant_full.js
 flask_app.py
 *.png
 *.mp3
-*.ttf
+*.TTF
 *.db
