@@ -55,6 +55,7 @@ let BuildingNamesi18n = false,
 			if(this._url.indexOf("metadata?id=unit_types") > -1) {
 				try {
 					let d = JSON.parse(this.responseText);
+					MainParser.sendJSON(d, "army_definitions");
 				} catch (err) {
 					console.error(err, this._url, this.responseText);
 				}
@@ -70,8 +71,12 @@ let BuildingNamesi18n = false,
 					return obj.requestClass === 'StartupService' && obj.requestMethod === 'getData';
 				});
 
-				if(StartupService !== undefined){
-					MainParser.StartUp(StartupService);
+				let RankingService = d.find(obj => {
+					return obj.requestClass === 'RankingService' && obj.requestMethod === 'newRank';
+				});
+
+				if(StartupService !== undefined && RankingService !== undefined){
+					MainParser.StartUp([StartupService, RankingService]);
 				}
 
 				let ConversationService = d.find(obj => {
@@ -108,6 +113,8 @@ let BuildingNamesi18n = false,
 
 				if(ResourcesTmp !== undefined && ResourcesNames !== undefined && Depostits !== undefined){
 					MainParser.getResourcesQuantity(ResourcesNames['responseData'], Resources['responseData']['resources'], Depostits['responseData']['states']);
+					MainParser.sendJSON(ResourcesNames['responseData'], "definitions");
+					MainParser.sendJSON(Resources['responseData']['resources'], "resources");
 				}
 
 				let Inventory = d.find(obj => {
@@ -115,6 +122,7 @@ let BuildingNamesi18n = false,
 				});
 
 				if (Inventory !== undefined) {
+					MainParser.sendJSON(Inventory['responseData'], "inventory");
 				}
 
 				let Army = d.find(obj => {
@@ -122,6 +130,7 @@ let BuildingNamesi18n = false,
 				});
 
 				if (Army !== undefined) {
+					MainParser.sendJSON(Army['responseData'], "army");
 				}
 
 				let GuildTreasure = d.find(obj => {
@@ -129,6 +138,7 @@ let BuildingNamesi18n = false,
 				});
 
 				if (GuildTreasure !== undefined && clan_id !== 0) {
+					MainParser.sendJSON(GuildTreasure['responseData']['resources'], "guild_resources");
 				}
 			}
 		});
@@ -163,7 +173,7 @@ MainParser = {
 						goods.push(GroupResourcesByAge[era][good][0]['id']);
 					}
 				}
-				console.log("\n" + era);
+				console.info("\n" + era);
 				if (goods.length === 3 && boost.length === 2){
 					let g1 = [goods[0], ResourcesQuantity[goods[0]]];
 					let g2 = [goods[1], ResourcesQuantity[goods[1]]];
@@ -188,14 +198,14 @@ MainParser = {
 					let tradeD2R2 = parseInt(ratio2 / 100 * res2);
 					let tradeD2R3 = parseInt(ratio2 / 100 * res3);
 
-					console.log("\t" + d1[1][0] + " -> " + tradeD1R1 + " -> " + g1[1][0]);
-					console.log("\t" + d1[1][0] + " -> " + tradeD1R2 + " -> " + g2[1][0]);
-					console.log("\t" + d1[1][0] + " -> " + tradeD1R3 + " -> " + g3[1][0]);
-					console.log("\t" + d2[1][0] + " -> " + tradeD2R1 + " -> " + g1[1][0]);
-					console.log("\t" + d2[1][0] + " -> " + tradeD2R2 + " -> " + g2[1][0]);
-					console.log("\t" + d2[1][0] + " -> " + tradeD2R3 + " -> " + g3[1][0]);
+					console.info("\t" + d1[1][0] + " -> " + tradeD1R1 + " -> " + g1[1][0]);
+					console.info("\t" + d1[1][0] + " -> " + tradeD1R2 + " -> " + g2[1][0]);
+					console.info("\t" + d1[1][0] + " -> " + tradeD1R3 + " -> " + g3[1][0]);
+					console.info("\t" + d2[1][0] + " -> " + tradeD2R1 + " -> " + g1[1][0]);
+					console.info("\t" + d2[1][0] + " -> " + tradeD2R2 + " -> " + g2[1][0]);
+					console.info("\t" + d2[1][0] + " -> " + tradeD2R3 + " -> " + g3[1][0]);
 				}else{
-					console.log("\tImpossible to balance");
+					console.info("\tImpossible to balance");
 				}
 			}
 		}
@@ -251,11 +261,20 @@ MainParser = {
 	},
 
 	StartUp: (d)=> {
-		user_id = d['responseData']['user_data']['player_id'];
-		user_name = d['responseData']['user_data']['user_name'];
-		clan_id = d['responseData']['user_data']['clan_id'];
-		clan_name = d['responseData']['user_data']['clan_name'];
+		user_id = d[0]['responseData']['user_data']['player_id'];
+		user_name = d[0]['responseData']['user_data']['user_name'];
+		clan_id = d[0]['responseData']['user_data']['clan_id'];
+		clan_name = d[0]['responseData']['user_data']['clan_name'];
+		score = 0;
+		rank = d[1]['responseData']['rank'];
 
+		for (let i in d[0]['responseData']['socialbar_list']){
+			if (d[0]['responseData']['socialbar_list'][i]['is_self']){
+				score = d[0]['responseData']['socialbar_list'][i]['score'];
+			}
+		}
+
+		MainParser.sendJSON({"user_id": user_id, "user_name": user_name, "clan_id": clan_id, "clan_name": clan_name, "score": score, "position": rank}, "userdata");
 
 		chrome.runtime.sendMessage(extID, {
 			type: 'storeData',
