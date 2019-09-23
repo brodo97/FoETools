@@ -77,11 +77,34 @@
 
 <h5 class="center">Powered by <a target="_blank" rel="noopener noreferrer" href="https://materializecss.com">Materialize</a></h5>
 <h5 class="center">and <a target="_blank" rel="noopener noreferrer" href="https://www.python.org">Python</a></h5>
-<h5 class="center">Other projects on <a target="_blank" rel="noopener noreferrer" href="https://github.com/brodo97">GitHub</a></h5>
+<h5 class="center"><a href="#about" class="modal-trigger">About</a> this project</h5>
+
+<div id="about" class="modal">
+    <div class="modal-content">
+        <h3>FoDAT</h3>
+        <p>It stands for Forge of Data Analysis Tools and it's a very simple tool for FoE's data analysis.</p>
+        <br>
+        <img class="responsive-img" src='{{ url_for("static", filename="wow.gif") }}'>
+        <br>
+        <h5>How this works</h5>
+        <ul class="collection">
+            <li class="collection-item">1) Intercept FoE's data with an extension (Chrome only)</li>
+            <li class="collection-item">2) Upload it on a server</li>
+            <li class="collection-item">3) <span style='color:#FF0000;'>L</span><span style='color:#F2050C;'>E</span><span style='color:#E50B19;'>T</span> <span style='color:#CC1733;'>T</span><span style='color:#BF1D3F;'>H</span><span style='color:#B2234C;'>E</span> <span style='color:#992F66;'>M</span><span style='color:#8C3572;'>A</span><span style='color:#7F3B7F;'>G</span><span style='color:#72418C;'>I</span><span style='color:#664799;'>C</span> <span style='color:#4C53B2;'>H</span><span style='color:#3F59BF;'>A</span><span style='color:#335FCC;'>P</span><span style='color:#2665D8;'>P</span><span style='color:#196BE5;'>E</span><span style='color:#0C71F2;'>N</span></li>
+        </ul>
+        <br>
+        <h5>How about a GitHub link or something?</h5>
+        <a target="_blank" rel="noopener noreferrer" href="https://github.com/brodo97/FoETools/tree/master/FoDAT">Here we go</a>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Good</a>
+    </div>
+</div>
+
 <script>
-    //if(e.which == 13) {alert('You pressed enter!');}
     $(document).ready(function(){
         $('.tabs').tabs();
+        $('.modal').modal();
     });
     $("#signupBtn").click(function(){
         let username = $("#newUsername").val();
@@ -169,6 +192,5 @@
             $("#result").html("Riempire tutti i campi");
         }
     });
-
 </script>
 {% endblock %}
