@@ -53,3 +53,19 @@ Windows
 ```batch
   C:\> py -3 -m pip install matplotlib
 ```
+## [FoDAT](FoDAT)
+
+#### Usage (Chrome Only)
+1. Download the extension from the releases
+2. Install it in Chrome
+3. Log into your FoE's village
+4. Open a console in DevTools (F12)
+5. [Init](#how-to-init) your account
+6. Save the token
+7. Sign up on http://brodo97.eu.pythonanywhere.com using the token
+8. Done, data everywhere (must log into the game to update)
+
+#### How to init
+```javascript
+MainParser.newUser();
+```
