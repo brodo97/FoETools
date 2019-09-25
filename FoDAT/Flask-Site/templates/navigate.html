@@ -105,7 +105,7 @@
 		<i class="large material-icons">arrow_left</i>
 	</a>
 </div>
-{{rank}}
+<script src="{{url_for('static', filename='numeral.js')}}" type="text/javascript"></script>
 <script>
     $(document).ready(function(){
         $('.collapsible').collapsible();
@@ -120,20 +120,28 @@
         series: [{name: "Punteggio", data: {{rank[0] | safe}}},
                  {name: "Posizione", data: {{rank[1] | safe}}}
         		],
-        xaxis: {categories: {{dates | safe}}},
+        xaxis: {labels: {rotate: -90, rotateAlways: true}, categories: {{dates | safe}}},
         yaxis: [{
-            min: Math.min.apply(null, {{rank[0] | safe}}),
-            max: Math.max.apply(null, {{rank[0] | safe}}),
+            min: Math.min.apply(null, {{rank[0] | safe}})-1,
+            max: Math.max.apply(null, {{rank[0] | safe}})+1,
             axisTicks: {show: true},
             axisBorder: {show: true, color: "#FF1654"},
-            labels: {style: {color: "#FF1654"}},
+            labels: {style: {color: "#FF1654"},
+                formatter: function (value) {
+                    return numeral(value).format("0,0");
+                }
+            },
             title: {text: "Punteggio", style: {color: "#FF1654"}}
         }, {
-            min: Math.min.apply(null, {{rank[1] | safe}}),
-            max: Math.max.apply(null, {{rank[1] | safe}}),
+            min: Math.min.apply(null, {{rank[1] | safe}})-1,
+            max: Math.max.apply(null, {{rank[1] | safe}})+1,
             axisTicks: {show: true},
             axisBorder: {show: true, color: "#247BA0"},
-            labels: {style: {color: "#247BA0"}},
+            labels: {style: {color: "#247BA0"},
+                formatter: function (value) {
+                    return numeral(value).format("0,0");
+                }
+            },
             title: {text: "Posizione", style: {color: "#247BA0"}},
             reversed: true
         }],

@@ -129,13 +129,17 @@
                     fill : {opacity: 0.5},
                     stroke: {curve: "smooth"},
                     series: [{name: name, data: inventory[name]}],
-                    xaxis: {labels: {rotate: -45}, categories: dates},
+                    xaxis: {labels: {rotate: -90, rotateAlways: true}, categories: dates},
                     yaxis: [{
                         min: Math.min.apply(null, inventory[name])-1,
                         max: Math.max.apply(null, inventory[name])+1,
                         axisTicks: {show: true},
                         axisBorder: {show: true},
-                        title: {text: name}
+                        title: {text: name},
+                        labels: {formatter: function (value) {
+                                    return numeral(value).format("0,0");
+                                }
+                        }
                     }],
                     legend: {horizontalAlign: "left"}
                 });
