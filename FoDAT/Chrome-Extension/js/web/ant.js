@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", function(){
 
 });
 
-
 let BuildingNamesi18n = false,
 	Conversations = [],
 	T_GE_Invest = [],
@@ -22,7 +21,8 @@ let BuildingNamesi18n = false,
 	user_id = 0,
 	user_name = "",
 	clan_id = 0,
-	clan_name = "";
+	clan_name = "",
+	version_checked = false;
 
 (function() {
 	let XHR = XMLHttpRequest.prototype,
@@ -37,7 +37,6 @@ let BuildingNamesi18n = false,
 	};
 
 	XHR.send = function(postData){
-
 		this.addEventListener('load', function(){
 			if(this._url.indexOf("metadata?id=city_entities") > -1 && BuildingNamesi18n === false){
 				BuildingNamesi18n = [];
@@ -50,6 +49,11 @@ let BuildingNamesi18n = false,
 						}
 					}
 				});
+			}
+
+			if (!version_checked) {
+				MainParser.check_version();
+				version_checked = true;
 			}
 
 			if(this._url.indexOf("metadata?id=unit_types") > -1) {
@@ -281,12 +285,11 @@ MainParser = {
 			key: 'user_name',
 			data: user_name
 		});
+
 		localStorage.setItem('user_name', user_name);
 	},
 
 	setConversations: (d)=> {
-
-		// GildenChat
 		if(d['clanTeaser'] !== undefined && Conversations.filter((obj)=> (obj.id === d['clanTeaser']['id'])).length === 0){
 			Conversations.push({
 				id: d['clanTeaser']['id'],
@@ -295,7 +298,6 @@ MainParser = {
 		}
 
 		if(d['teasers'] !== undefined){
-			// die anderen Chats
 			for(let k in d['teasers']){
 
 				if(d['teasers'].hasOwnProperty(k)){

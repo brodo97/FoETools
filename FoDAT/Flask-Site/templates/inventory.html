@@ -6,6 +6,7 @@
         vertical-align: top;
     }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 {% endblock %}
 {% block content %}
 <h2 class="center black-text">Dati inventario di {{ name }}</h2>
@@ -22,10 +23,10 @@
 		    </div>
 		</div>
 	</div>
-	<div class="col s12 m10 offset-m1">
-        <div class="card white">
-            <div class="card-content chart-container" style="height:50vh">
-                <canvas id="g4e"></canvas>
+    <div class="col s12">
+        <div class="card">
+            <div class="card-content">
+                <div id="chart"></div>
             </div>
         </div>
     </div>
@@ -78,62 +79,27 @@
 </div>
 <br>
 <br>
-<script src="{{url_for('static', filename='Chart.js')}}" type="text/javascript"></script>
 <script src="{{url_for('static', filename='numeral.js')}}" type="text/javascript"></script>
 <script>
-    var g4eOptions = {
-        animation: {
-            duration: 1000,
-        },
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: false
-                }
-            }],
-            xAxes: [{
-                ticks: {
-                    autoSkip: true,
-                    maxRotation: 90,
-                    minRotation: 90
-                }
-            }]
-
-        },
-        title: {
-                display: true,
-                text: "Andamento storico esercito"
-        },
-        legend: {display: true},
-        tooltips: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    hover: {
-                        mode: 'nearest',
-                        intersect: true
-                    },
-        responsive: true,
-        maintainAspectRatio: false,
-    };
-    var g4eCanvas = document.getElementById("g4e");
-    var g4eCTX = g4eCanvas.getContext('2d');
-    var g4eData = {labels: {{ dates|safe }}, datasets: []};
-
-    Chart.plugins.register({
-        beforeDraw: function(chartInstance) {
-            var ctx = chartInstance.chart.ctx;
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 0, chartInstance.chart.width, chartInstance.chart.height);
-        }
-    });
-
-    var g4eChart = new Chart(g4eCTX, {type: 'line', data: g4eData, options: g4eOptions});
-</script>
-<script type="text/javascript">
     var inventory = {{ inventory|safe }};
     var dates = {{ dates|safe }};
     var allDates = {{ allDates|safe }};
+    let chartSettings = {height: 400, type: "area", stacked: false, animations: {enabled: true, easing: 'easeinout', speed: 1000, animateGradually: {enabled: true, delay: 1000}, dynamicAnimation: {enabled: true, speed: 1000}}};
+
+    var options = {
+        chart: chartSettings,
+        title: {text: "Storico beni", align: "left"},
+        dataLabels: {enabled: false},
+        series: [],
+        xaxis: {categories: dates},
+        legend: {horizontalAlign: "left"}
+    };
+
+    var chart = new ApexCharts(document.querySelector("#chart"), options);
+
+    chart.render();
+</script>
+<script type="text/javascript">
 	window.onload = function () {
 		var x = location.search;
 		var btn = document.getElementById("act");
@@ -146,9 +112,6 @@
 			btn.href = "/getData/inventory?detailed";
 			btn.title = "Aumenta dettagli";
 		}
-		{% if untranslated %}
-	        console.error("SOMETHING NEED TRANSLATION! {{untranslated|safe}}");
-    	{% endif %}
 	}
 	$(document).ready(function(){
 	    $('.fixed-action-btn').floatingActionButton({hoverEnabled: false, direction: "left"});
@@ -158,14 +121,27 @@
                 {% endfor %}
             },
             onAutocomplete: function(name){
-                let n = g4eChart.data.datasets.length
-                for (let z = 0; z < n; z++) {
-                    g4eChart.data.datasets.pop();
-                }
-                let line = [];
+                chart.updateOptions({
+                    chart: chartSettings,
+                    title: {text: "Storico beni", align: "left"},
+                    dataLabels: {enabled: false},
+                    theme: {palette: "palette1"},
+                    fill : {opacity: 0.5},
+                    stroke: {curve: "smooth"},
+                    series: [{name: name, data: inventory[name]}],
+                    xaxis: {labels: {rotate: -45}, categories: dates},
+                    yaxis: [{
+                        min: Math.min.apply(null, inventory[name])-1,
+                        max: Math.max.apply(null, inventory[name])+1,
+                        axisTicks: {show: true},
+                        axisBorder: {show: true},
+                        title: {text: name}
+                    }],
+                    legend: {horizontalAlign: "left"}
+                });
+
                 document.getElementById("titolo").innerHTML = "Dati per '" + name + "' degli ultimi " + allDates.length + " giorni"
                 for (let i in dates) {
-                    line.push(inventory[name][i]);
                     document.getElementById(dates[i] + "_quantity").innerHTML = numeral(inventory[name][i]).format("0,0");
                     if (i > 0) {
                         var diff = parseInt(inventory[name][i]) - parseInt(inventory[name][i-1]);
@@ -180,8 +156,7 @@
                         document.getElementById(dates[i] + "_diff").innerHTML = text;
                     }
                 }
-                g4eChart.data.datasets.push({label: name, data: line, backgroundColor: "#00000060", borderColor: "#000000FF"});
-                g4eChart.update();
+
                 var text = "";
                 var firstLast = (parseInt(inventory[name][dates.length-1]) - parseInt(inventory[name][0]));
                 if (firstLast > 0) {

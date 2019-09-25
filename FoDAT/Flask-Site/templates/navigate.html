@@ -1,6 +1,18 @@
 {% extends "base.html" %}
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+{% endblock %}
 {% block content %}
 <h1 class="center">Cosa cercare per {{name}}?</h1>
+<div class="row">
+    <div class="col s12">
+        <div class="card">
+            <div class="card-content">
+                <div id="chart"></div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row">
     <div class="col s12">
         <div class="card">
@@ -93,9 +105,43 @@
 		<i class="large material-icons">arrow_left</i>
 	</a>
 </div>
+{{rank}}
 <script>
     $(document).ready(function(){
         $('.collapsible').collapsible();
     });
+
+    var options = {
+        chart: {height: 350, type: "line", stacked: false},
+        title: {text: "Classifica", align: "left"},
+        dataLabels: {enabled: false},
+        colors: ["#FF1654", "#247BA0"],
+        stroke: {curve: "smooth"},
+        series: [{name: "Punteggio", data: {{rank[0] | safe}}},
+                 {name: "Posizione", data: {{rank[1] | safe}}}
+        		],
+        xaxis: {categories: {{dates | safe}}},
+        yaxis: [{
+            min: Math.min.apply(null, {{rank[0] | safe}}),
+            max: Math.max.apply(null, {{rank[0] | safe}}),
+            axisTicks: {show: true},
+            axisBorder: {show: true, color: "#FF1654"},
+            labels: {style: {color: "#FF1654"}},
+            title: {text: "Punteggio", style: {color: "#FF1654"}}
+        }, {
+            min: Math.min.apply(null, {{rank[1] | safe}}),
+            max: Math.max.apply(null, {{rank[1] | safe}}),
+            axisTicks: {show: true},
+            axisBorder: {show: true, color: "#247BA0"},
+            labels: {style: {color: "#247BA0"}},
+            title: {text: "Posizione", style: {color: "#247BA0"}},
+            reversed: true
+        }],
+        legend: {horizontalAlign: "left"}
+    };
+
+    var chart = new ApexCharts(document.querySelector("#chart"), options);
+
+    chart.render();
 </script>
 {% endblock %}

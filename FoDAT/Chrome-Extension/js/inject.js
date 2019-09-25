@@ -2,11 +2,11 @@ chrome.storage.sync.get({
     api_key: ''
 
 }, (items) => {
-
-	let code = "let api_key='" + (items.api_key || "0") + "',extID='"+ chrome.runtime.id + "'",
-		script = document.createElement('script'),
-		manifestData = chrome.runtime.getManifest(),
+	let manifestData = chrome.runtime.getManifest(),
 		v = manifestData.version;
+
+	let code = "let api_key='" + (items.api_key || "0") + "',extID='"+ chrome.runtime.id + "',v='" + v + "'",
+		script = document.createElement('script');
 
 	script.id = 'PlayerNumbers';
 	script.innerText = code;
