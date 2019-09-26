@@ -85,15 +85,16 @@
     var goods = {{ goods|safe }};
     var dates = {{ dates|safe }};
     var allDates = {{ allDates|safe }};
-    let chartSettings = {height: 400, type: "area", stacked: false, animations: {enabled: true, easing: 'easeinout', speed: 1000, animateGradually: {enabled: true, delay: 1000}, dynamicAnimation: {enabled: true, speed: 1000}}};
+    let chartSettings = {height: 400, type: "area", stacked: false,
+                         animations: {enabled: true, easing: 'easeinout', speed: 1000, animateGradually: {enabled: true, delay: 1000}, dynamicAnimation: {enabled: true, speed: 1000}},
+                         toolbar: {show: true, tools: {download: true, selection: true, zoom: true, zoomin: true, zoomout: true, pan: true, reset: true}}};
 
     var options = {
         chart: chartSettings,
         title: {text: "Storico beni", align: "left"},
         dataLabels: {enabled: false},
         series: [],
-        xaxis: {categories: dates},
-        legend: {horizontalAlign: "left"}
+        xaxis: {categories: dates}
     };
 
     var chart = new ApexCharts(document.querySelector("#chart"), options);
@@ -114,6 +115,28 @@
 			btn.title = "Aumenta dettagli";
 		}
 	}
+
+    function getOff(val) {
+        let off = 0;
+	    if (Math.max.apply(null, val)-Math.min.apply(null, val) !== 0) {
+	        off = parseInt((Math.max.apply(null, val)-Math.min.apply(null, val))*0.03);
+	    }else{
+	        off = parseInt(Math.max.apply(null, val)*0.03);
+	    }
+	    if (off === 0) {
+	        off = 1;
+	    }
+	    return off;
+    }
+
+	function getMin(val){
+	    return (Math.min.apply(null, val)-getOff(val)>0 ? Math.min.apply(null, val)-getOff(val) : 0);
+	}
+
+	function getMax(val){
+	    return Math.max.apply(null, val)+getOff(val);
+	}
+
 	$(document).ready(function(){
 	    $('.fixed-action-btn').floatingActionButton({hoverEnabled: false, direction: "left"});
         $('input.autocomplete').autocomplete({
@@ -122,6 +145,18 @@
                 {% endfor %}
             },
             onAutocomplete: function(name){
+                let data = [];
+                let j = 0;
+
+                for (let i in allDates) {
+                    if (dates.indexOf(allDates[i]) !== -1) {
+                        data.push(goods[name][j]);
+                        j++;
+                    }else{
+                        data.push(null);
+                    }
+                }
+
                 chart.updateOptions({
                     chart: chartSettings,
                     title: {text: "Storico beni", align: "left"},
@@ -129,11 +164,11 @@
                     theme: {palette: "palette1"},
                     fill : {opacity: 0.5},
                     stroke: {curve: "smooth"},
-                    series: [{name: name, data: goods[name]}],
+                    series: [{name: name, data: data}],
                     xaxis: {labels: {rotate: -90, rotateAlways: true}, categories: dates},
                     yaxis: [{
-                        min: Math.min.apply(null, goods[name])-1,
-                        max: Math.max.apply(null, goods[name])+1,
+                        min: getMin(goods[name]),
+                        max: getMax(goods[name]),
                         axisTicks: {show: true},
                         axisBorder: {show: true},
                         title: {text: name},
@@ -141,8 +176,7 @@
                                     return numeral(value).format("0,0");
                                 }
                         }
-                    }],
-                    legend: {horizontalAlign: "left"}
+                    }]
                 });
 
                 document.getElementById("titolo").innerHTML = "Dati per '" + name + "' degli ultimi " + allDates.length + " giorni"

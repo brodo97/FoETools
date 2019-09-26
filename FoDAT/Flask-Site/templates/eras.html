@@ -86,15 +86,16 @@
     let dates = {{ dates|safe }};
     let allDates = {{ allDates|safe }};
     let colors = ["#008FFB", "#00E396", "#FFAD0F", "#FF4560", "#775DD0"];
-    let chartSettings = {height: 400, type: "line", stacked: false, animations: {enabled: true, easing: 'easeinout', speed: 1000, animateGradually: {enabled: true, delay: 1000}, dynamicAnimation: {enabled: true, speed: 1000}}};
+    let chartSettings = {height: 400, type: "line", stacked: false,
+                         animations: {enabled: true, easing: 'easeinout', speed: 1000, animateGradually: {enabled: true, delay: 1000}, dynamicAnimation: {enabled: true, speed: 1000}},
+                         toolbar: {show: true, tools: {download: true, selection: true, zoom: true, zoomin: true, zoomout: true, pan: true, reset: true}}};
 
     var options = {
         chart: chartSettings,
         title: {text: "Storico beni era", align: "left"},
         dataLabels: {enabled: false},
         series: [],
-        xaxis: {categories: dates},
-        legend: {horizontalAlign: "left"}
+        xaxis: {categories: dates}
     };
 
     var chart = new ApexCharts(document.querySelector("#chart"), options);
@@ -133,6 +134,26 @@
 		}
 	}
 
+    function getOff(val) {
+        let off = 0;
+	    if (Math.max.apply(null, val)-Math.min.apply(null, val) !== 0) {
+	        off = parseInt((Math.max.apply(null, val)-Math.min.apply(null, val))*0.03);
+	    }else{
+	        off = parseInt(Math.max.apply(null, val)*0.03);
+	    }
+	    if (off === 0) {
+	        off = 1;
+	    }
+	    return off;
+    }
+
+	function getMin(val){
+	    return (Math.min.apply(null, val)-getOff(val)>0 ? Math.min.apply(null, val)-getOff(val) : 0);
+	}
+
+	function getMax(val){
+	    return Math.max.apply(null,
+
 	$(document).ready(function(){
 	    $('.fixed-action-btn').floatingActionButton({hoverEnabled: false, direction: "left"});
         $('input.autocomplete').autocomplete({
@@ -147,10 +168,22 @@
                 let c = 0;
 
                 for (let i in eras[name]) {
-                    series.push({name: i, data: eras[name][i]});
+                    let data = [];
+                    let j = 0;
+
+                    for (let k in allDates) {
+                        if (dates.indexOf(allDates[k]) !== -1) {
+                            data.push(eras[name][i][j]);
+                            j++;
+                        }else{
+                            data.push(null);
+                        }
+                    }
+
+                    series.push({name: i, data: data});
                     yaxis.push({
-                        min: Math.min.apply(null, eras[name][i])-1,
-                        max: Math.max.apply(null, eras[name][i])+1,
+                        min: getMin(eras[name][i]),
+                        max: getMax(eras[name][i]),
                         axisTicks: {show: true},
                         axisBorder: {show: true, color: colors[c]},
                         title: {text: i, style: {color: colors[c]}},
@@ -170,9 +203,9 @@
                     colors: colors,
                     stroke: {curve: "smooth"},
                     series: series,
-                    xaxis: {labels: {rotate: -90, rotateAlways: true}, categories: dates},
+                    xaxis: {labels: {rotate: -90, rotateAlways: true}, categories: allDates},
                     yaxis: yaxis,
-                    legend: {horizontalAlign: "left"}
+                    legend: {horizontalAlign: "left", position: "top"}
                 });
 
                 total = [];

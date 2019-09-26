@@ -111,6 +111,27 @@
         $('.collapsible').collapsible();
     });
 
+    function getOff(val) {
+        let off = 0;
+	    if (Math.max.apply(null, val)-Math.min.apply(null, val) !== 0) {
+	        off = parseInt((Math.max.apply(null, val)-Math.min.apply(null, val))*0.03);
+	    }else{
+	        off = parseInt(Math.max.apply(null, val)*0.03);
+	    }
+	    if (off === 0) {
+	        off = 1;
+	    }
+	    return off;
+    }
+
+	function getMin(val){
+	    return (Math.min.apply(null, val)-getOff(val)>0 ? Math.min.apply(null, val)-getOff(val) : 0);
+	}
+
+	function getMax(val){
+	    return Math.max.apply(null, val)+getOff(val);
+	}
+
     var options = {
         chart: {height: 350, type: "line", stacked: false},
         title: {text: "Classifica", align: "left"},
@@ -122,8 +143,8 @@
         		],
         xaxis: {labels: {rotate: -90, rotateAlways: true}, categories: {{dates | safe}}},
         yaxis: [{
-            min: Math.min.apply(null, {{rank[0] | safe}})-1,
-            max: Math.max.apply(null, {{rank[0] | safe}})+1,
+            min: getMin({{rank[0] | safe}}),
+            max: getMax({{rank[0] | safe}}),
             axisTicks: {show: true},
             axisBorder: {show: true, color: "#FF1654"},
             labels: {style: {color: "#FF1654"},
@@ -133,8 +154,8 @@
             },
             title: {text: "Punteggio", style: {color: "#FF1654"}}
         }, {
-            min: Math.min.apply(null, {{rank[1] | safe}})-1,
-            max: Math.max.apply(null, {{rank[1] | safe}})+1,
+            min: getMin({{rank[1] | safe}}),
+            max: getMax({{rank[1] | safe}}),
             axisTicks: {show: true},
             axisBorder: {show: true, color: "#247BA0"},
             labels: {style: {color: "#247BA0"},
@@ -145,7 +166,7 @@
             title: {text: "Posizione", style: {color: "#247BA0"}},
             reversed: true
         }],
-        legend: {horizontalAlign: "left"}
+        legend: {horizontalAlign: "left", position: "top"}
     };
 
     var chart = new ApexCharts(document.querySelector("#chart"), options);
