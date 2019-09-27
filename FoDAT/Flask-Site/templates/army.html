@@ -81,15 +81,16 @@
 <br>
 <br>
 <script src="{{url_for('static', filename='numeral.js')}}" type="text/javascript"></script>
-<script>
-    var army = {{ army|safe }};
-    var dates = {{ dates|safe }};
-    var allDates = {{ allDates|safe }};
+<script src="{{url_for('static', filename='Functions.js')}}" type="text/javascript"></script>
+<script type="text/javascript">
+    let army = {{ army|safe }};
+    let dates = {{ dates|safe }};
+    let allDates = {{ allDates|safe }};
     let chartSettings = {height: 400, type: "area", stacked: false,
                          animations: {enabled: true, easing: 'easeinout', speed: 1000, animateGradually: {enabled: true, delay: 1000}, dynamicAnimation: {enabled: true, speed: 1000}},
                          toolbar: {show: true, tools: {download: true, selection: true, zoom: true, zoomin: true, zoomout: true, pan: true, reset: true}}};
 
-    var options = {
+    let options = {
         chart: chartSettings,
         title: {text: "Storico beni", align: "left"},
         dataLabels: {enabled: false},
@@ -97,47 +98,12 @@
         xaxis: {categories: dates}
     };
 
-    var chart = new ApexCharts(document.querySelector("#chart"), options);
+    let chart = new ApexCharts(document.querySelector("#chart"), options);
 
     chart.render();
-</script>
-<script type="text/javascript">
-	window.onload = function () {
-		var x = location.search;
-		var btn = document.getElementById("act");
-		if (x === "?detailed") {
-			btn.innerHTML = "<i class=\"material-icons\">remove</i>";
-			btn.href = "/getData/army";
-			btn.title = "Riduci dettagli";
-		}else{
-			btn.innerHTML = "<i class=\"material-icons\">add</i>";
-			btn.href = "/getData/army?detailed";
-			btn.title = "Aumenta dettagli";
-		}
-	}
-
-    function getOff(val) {
-        let off = 0;
-	    if (Math.max.apply(null, val)-Math.min.apply(null, val) !== 0) {
-	        off = parseInt((Math.max.apply(null, val)-Math.min.apply(null, val))*0.03);
-	    }else{
-	        off = parseInt(Math.max.apply(null, val)*0.03);
-	    }
-	    if (off === 0) {
-	        off = 1;
-	    }
-	    return off;
-    }
-
-	function getMin(val){
-	    return (Math.min.apply(null, val)-getOff(val)>0 ? Math.min.apply(null, val)-getOff(val) : 0);
-	}
-
-	function getMax(val){
-	    return Math.max.apply(null, val)+getOff(val);
-	}
 
 	$(document).ready(function(){
+	    initActionBtn(location, document.getElementById("act"));
 	    $('.fixed-action-btn').floatingActionButton({hoverEnabled: false, direction: "left"});
         $('input.autocomplete').autocomplete({
             data: {
@@ -179,12 +145,11 @@
                     }]
                 });
 
-                document.getElementById("titolo").innerHTML = "Dati per '" + name + "' degli ultimi " + allDates.length + " giorni"
                 for (let i in dates) {
-                    document.getElementById(dates[i] + "_quantity").innerHTML = numeral(army[name][i]).format("0,0");
+                    $("#" + dates[i] + "_quantity").text(numeral(army[name][i]).format("0,0"));
                     if (i > 0) {
-                        var diff = parseInt(army[name][i]) - parseInt(army[name][i-1]);
-                        var text = "";
+                        let diff = parseInt(army[name][i]) - parseInt(army[name][i-1]);
+                        let text = "";
                         if (diff > 0) {
                             text += "<p class='green-text'>+" + numeral(diff).format("0,0") + "<i class='material-icons'>arrow_upward</i></p>";
                         } else if (diff < 0) {
@@ -192,12 +157,12 @@
                         } else {
                             text += "<p class='blue-text'>" + numeral(diff).format("0,0") + "</p>";
                         }
-                        document.getElementById(dates[i] + "_diff").innerHTML = text;
+                        $("#" + dates[i] + "_diff").text(text);
                     }
                 }
 
-                var text = "";
-                var firstLast = parseInt(army[name][dates.length-1]) - parseInt(army[name][0]);
+                let text = "";
+                let firstLast = parseInt(army[name][dates.length-1]) - parseInt(army[name][0]);
                 if (firstLast > 0) {
                     text += "<p class='green-text'>+" + numeral(firstLast).format("0,0") + "<i class='material-icons'>arrow_upward</i></p>";
                 } else if (firstLast < 0) {
@@ -205,7 +170,8 @@
                 } else {
                     text += "<p class='blue-text'>" + numeral(firstLast).format("0,0") + "</p>";
                 }
-                document.getElementById("firstLast").innerHTML = text;
+                $("firstLast").text(text);
+                $("titolo").text("Dati per '" + name + "' degli ultimi " + allDates.length + " giorni");
             }
         });
     });
