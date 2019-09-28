@@ -66,8 +66,7 @@
     let dates = {{ dates|safe }};
     let allDates = {{ allDates|safe }};
     let chartSettings = {height: 400, type: "area", stacked: false,
-                         animations: {enabled: true, easing: 'easeinout', speed: 1000, animateGradually: {enabled: true, delay: 1000}, dynamicAnimation: {enabled: true, speed: 1000}},
-                         toolbar: {show: true, tools: {download: true, selection: true, zoom: true, zoomin: true, zoomout: true, pan: true, reset: true}}};
+                         animations: {enabled: true, easing: 'easeinout', speed: 1000, animateGradually: {enabled: true, delay: 1000}, dynamicAnimation: {enabled: true, speed: 1000}}};
 
     let options = {
         chart: chartSettings,
@@ -123,11 +122,11 @@
                         }
                     }]
                 });
-                
+
                 $("#titolo").text(`Dati per '${name}' degli ultimi ${allDates.length} giorni`);
                 $("tbody").empty();
                 for (let i in dates) {
-                    $("tbody").append(`<tr id="tr${i}"><td>${dates[i]}</td></tr>`)
+                    $("tbody").append(`<tr id="tr${i}"><td>${dates[i]}</td></tr>`);
                     $(`#tr${i}`).append(`<td>${numeral(inventory[name][i]).format("0,0")}</td>`);
                     if (i > 0) {
                         let diff = parseInt(inventory[name][i]) - parseInt(inventory[name][i-1]);
@@ -142,7 +141,7 @@
                         $(`#tr${i}`).append("<td>No Data</td>");
                     }
                 }
-                
+
                 $("tbody").append(`<tr id="trlast"><td>Dal ${dates[0]} al ${dates[dates.length-1]}</td></tr>`);
                 $("#trlast").append("<td></td>");
                 let firstLast = (parseInt(inventory[name][dates.length-1]) - parseInt(inventory[name][0]));
