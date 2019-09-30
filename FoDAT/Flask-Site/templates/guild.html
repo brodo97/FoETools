@@ -33,7 +33,7 @@
     <div class="col s12 m10 offset-m1">
         <div class="card white">
             <div class="card-content">
-                <span class="card-title" id="titolo">Dati</span>
+                <span class="card-title" id="titolo">Tabella dati</span>
                 <table class="striped">
                     <thead>
                         <tr>
@@ -43,26 +43,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for data in allDates %}
-                            {% if data in dates %}
-                        <tr>
-                            <td><p>{{ data }}</p></td>
-                            <td id="{{ data }}_quantity">No Data</td>
-                            <td id="{{ data }}_diff">No Data</td>
-                        </tr>
-                            {% else %}
-                        <tr>
-                            <td><p>{{ data }}</p></td>
-                            <td>No Data</td>
-                            <td>No Data</td>
-                        </tr>
-                            {% endif %}
-                        {% endfor %}
-                        <tr>
-                            <td><p>Da {{allDates[0]}} a {{allDates[-1]}}</p></td>
-                            <td></td>
-                            <td id="firstLast">No Data</td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -88,8 +68,7 @@
     let allDates = {{ allDates|safe }};
     let colors = ["#008FFB", "#00E396", "#FFAD0F", "#FF4560", "#775DD0"];
     let chartSettings = {height: 400, type: "line", stacked: false,
-                         animations: {enabled: true, easing: 'easeinout', speed: 1000, animateGradually: {enabled: true, delay: 1000}, dynamicAnimation: {enabled: true, speed: 1000}},
-                         toolbar: {show: true, tools: {download: true, selection: true, zoom: true, zoomin: true, zoomout: true, pan: true, reset: true}}};
+                         animations: {enabled: true, easing: 'easeinout', speed: 1000, animateGradually: {enabled: true, delay: 1000}, dynamicAnimation: {enabled: true, speed: 1000}}};
 
     let options = {
         chart: chartSettings,
@@ -187,33 +166,35 @@
                     }
                 }
 
+                $("#titolo").text(`Dati per '${name}' degli ultimi ${allDates.length} giorni`);
+                $("tbody").empty();
                 for (let i in dates) {
-                   $("#" + dates[i] + "_quantity").text(numeral(total[i]).format("0,0"));
+                    $("tbody").append(`<tr id="tr${i}"><td>${dates[i]}</td></tr>`);
+                    $(`#tr${i}`).append(`<td>${numeral(total[i]).format("0,0")}</td>`);
                     if (i > 0) {
                         let diff = parseInt(total[i]) - parseInt(total[i-1]);
-                        let text = "";
                         if (diff > 0) {
-                            text += "<p class='green-text'>+" + numeral(diff).format("0,0") + "<i class='material-icons'>arrow_upward</i></p>";
+                            $(`#tr${i}`).append(`<td><p class="green-text">+${numeral(diff).format("0,0")}<i class="material-icons">arrow_upward</i></p></td>`);
                         } else if (diff < 0) {
-                            text += "<p class='red-text'>" + numeral(diff).format("0,0") + "<i class='material-icons'>arrow_downward</i></p>";
+                            $(`#tr${i}`).append(`<td><p class="red-text">${numeral(diff).format("0,0")}<i class="material-icons">arrow_downward</i></p></td>`);
                         } else {
-                            text += "<p class='blue-text'>" + numeral(diff).format("0,0") + "</p>";
+                            $(`#tr${i}`).append(`<td><p class="blue-text">${numeral(diff).format("0,0")}</p></td>`);
                         }
-                        $("#" + dates[i] + "_diff").text(text);
+                    }else{
+                        $(`#tr${i}`).append("<td>No Data</td>");
                     }
                 }
 
-                let text = "";
+                $("tbody").append(`<tr id="trlast"><td>Dal ${dates[0]} al ${dates[dates.length-1]}</td></tr>`);
+                $("#trlast").append("<td></td>");
                 let firstLast = (parseInt(total[dates.length-1]) - parseInt(total[0]));
                 if (firstLast > 0) {
-                    text += "<p class='green-text'>+" + numeral(firstLast).format("0,0") + "<i class='material-icons'>arrow_upward</i></p>";
+                    $("#trlast").append(`<td><p class="green-text">+${numeral(firstLast).format("0,0")}<i class='material-icons'>arrow_upward</i></p></td>`);
                 } else if (firstLast < 0) {
-                    text += "<p class='red-text'>" + numeral(firstLast).format("0,0") + "<i class='material-icons'>arrow_downward</i></p>";
+                    $("#trlast").append(`<td><p class="red-text">${numeral(firstLast).format("0,0")}<i class='material-icons'>arrow_downward</i></p></td>`);
                 } else {
-                    text += "<p class='blue-text'>" + numeral(firstLast).format("0,0") + "</p>";
+                    $("#trlast").append(`<td><p class="blue-text">${numeral(firstLast).format("0,0")}</p></td>`);
                 }
-                $("firstLast").text(text);
-                $("titolo").text("Dati per '" + name + "' degli ultimi " + allDates.length + " giorni");
             }
         });
     });
