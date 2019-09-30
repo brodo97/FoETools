@@ -1,4 +1,4 @@
-/*chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(() => {
 	let version = chrome.app.getDetails().version;
 
 	chrome.tabs.query({active: true, currentWindow: true}, (tabs)=> {
@@ -14,7 +14,7 @@ function isDevMode()
 {
 	return !('update_url' in chrome.runtime.getManifest());
 }
-*/
+
 let popupWindowId = 0;
 
 chrome.runtime.onMessageExternal.addListener((request) => {

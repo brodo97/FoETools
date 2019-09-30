@@ -28,11 +28,6 @@ function restore_options(){
 	});
 }
 
-function avvia(){
-	chrome.windows.create({"url": "http://it.forgeofempires.com/", "incognito": true});
-}
-
 
 document.addEventListener('DOMContentLoaded', restore_options);
 document.getElementById('save').addEventListener('click', save_options);
-document.getElementById('avvia').addEventListener('click', avvia);

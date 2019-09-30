@@ -8,7 +8,7 @@ chrome.storage.sync.get({
 	let code = "let api_key='" + (items.api_key || "0") + "',extID='"+ chrome.runtime.id + "',v='" + v + "'",
 		script = document.createElement('script');
 
-	script.id = 'PlayerNumbers';
+	script.id = 'InitData';
 	script.innerText = code;
 	(document.head || document.documentElement).appendChild(script);
 
@@ -27,19 +27,5 @@ chrome.storage.sync.get({
 			(document.head || document.documentElement).appendChild(sc);
 		}
 	}
-
-	let cp = document.createElement('script');
-	cp.src = chrome.extension.getURL('vendor/clipboard/clipboard.min.js');
-	cp.id = 'clipboard-script';
-	cp.onload = function(){
-		this.remove();
-	};
-	(document.head || document.documentElement).appendChild(cp);
-	
-	let style = document.createElement('link');
-	style.href = chrome.extension.getURL('css/web/style.css?v=' + v);
-	style.id = 'ant-style';
-	style.rel = 'stylesheet';
-	(document.head || document.documentElement).appendChild(style);
 });
 

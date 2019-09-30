@@ -1,38 +1,35 @@
 {
-	"name": "Estensione Di Brodo",
-	"version": "0.0.1",
-	"description": "Strumenti utili a Brodo and Friends",
+	"name": "FoDAT",
+	"version": "0.1.4",
+	"description": "Forge of Data Analysis Tools",
 	"manifest_version": 2,
 	"permissions": [
 		"activeTab",
 		"storage",
 		"tabs",
-	  	"notifications",
 	  	"management",
 		"https://*.forgeofempires.com/*"
 	],
 
 	"browser_action": {
 		"default_icon": {
-			"16": "images/icon16.png",
-			"19": "images/icon19.png",
-			"48": "images/icon48.png"
+			"48": "images/icon48.png",
+			"128": "images/icon128.png",
+			"200": "images/icon200.png"
 		},
 		"default_popup": "content/popup.html",
-		"default_title": "Estensione Di Brodo"
+		"default_title": "FoDAT"
 	},
 
 	"icons": {
-		"16": "images/icon16.png",
 		"48": "images/icon48.png",
-		"128": "images/icon128.png"
+		"128": "images/icon128.png",
+		"200": "images/icon200.png"
 	},
 
 	"web_accessible_resources": [
-		"css/web/style.css",
 		"vendor/*.js",
-		"js/web/*.*",
-		"css/images/*.png"
+		"js/web/*.*"
 	],
 	
 	"content_scripts": [
