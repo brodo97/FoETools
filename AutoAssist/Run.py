@@ -67,9 +67,10 @@ with mss.mss() as sct:
 							break
 				else:
 					print("Error: {} not found".format(buttons[button]))
+					exit()
 		else:
 			print("{} not found".format(tabs[tab]))
 		
 		tab += 1
 
-print("\nResults:\nTotal time: {:.2f}s\nTotal assisted: {} players".format(time.time() - ts, assistCount))
+print("\nResults:\nTotal time: {:.2f}s\nTotal assist: {} players".format(time.time() - ts, assistCount))
