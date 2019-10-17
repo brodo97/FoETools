@@ -35,7 +35,7 @@ if __name__ == '__main__':
 	if "Settings.yml" not in os.listdir("."):
 		open("Settings.yml", "w").write("#Settings\n#Buttons\nenter: EnterGuild.PNG\nguildTab: GuildTab.PNG\nglobalBtn: Global.PNG\nglobalGuild: GlobalGuild.PNG\nmembers: Members.PNG\nquit: QuitGuild.PNG\ndown: Down.PNG\nleave: LeaveGuild.PNG\nbutton0: First.PNG\nbutton1: Next.PNG\nassist: Assist.PNG\nexit: Exit.PNG\n#Template matching threshold\nthreshold: 0.91\n#Starting phase\nphase: -1\n#Wait times in seconds\nwaitAction: 1\nwaitAssist: 1.5\nwaitReload: 10")
 	
-	botToken= ""
+	botToken = ""
 
 	with open("Settings.yml") as _F:
 		settings = yaml.load(_F, Loader=yaml.FullLoader)

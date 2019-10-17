@@ -69,3 +69,65 @@ Windows
 ```javascript
 MainParser.newUser();
 ```
+
+## [AutoAssist](AutoAssist)
+
+#### Usage
+1. Log into you FoE's account
+2. Keep the window visible
+3. Run it
+
+#### Required libraries
+* cv2
+* mss
+* numpy
+* pyautogui
+
+#### Execution
+Linux
+```bash
+  $ python3 Run.py
+```
+Windows
+```batch
+  C:\> py -3 Run.py
+```
+
+#### Results
+You'll have guilds' members and friends assisted
+
+#### How to stop it
+Move the cursor in the top left corner of the monitor
+
+## [AutoGuild](AutoGuild)
+
+#### Usage
+1. Log into you FoE's account
+2. Keep the window visible
+3. Run it
+
+#### Required libraries
+* cv2
+* mss
+* numpy
+* pyautogui
+* requests
+
+#### Execution
+Linux
+```bash
+  $ python3 Run.py
+```
+Windows
+```batch
+  C:\> py -3 Run.py
+```
+
+#### Results
+You'll have a non stop auto-assist bot
+
+#### How to stop it
+Move the cursor in the top left corner of the monitor
+
+#### Optional
+Fill botToken variable to send results via Telegram
