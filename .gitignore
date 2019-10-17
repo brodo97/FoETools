@@ -2,6 +2,9 @@ ant_full.js
 flask_app.py
 FoDAT/**/*.png
 **/PyInstaller
+Settings.yml
+test.py
+*.exe
 *.mp3
 *.TTF
 *.db
