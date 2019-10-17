@@ -1,5 +1,5 @@
 try:
-	import time, cv2, mss, numpy as np, pyautogui as p, platform, os, requests, urllib, yaml
+	import time, cv2, mss, numpy as np, pyautogui as p, os, requests, urllib, yaml
 except Exception as e:
 	print("Missing lib: {}. Quit".format(e))
 	exit()
@@ -11,11 +11,6 @@ class ReadImage:
 
     def __str__(self):
         return self.__name
-
-if platform.system() == "Windows":
-	clear = lambda: os.system("cls")
-else:
-	clear = lambda: os.system("clear")
 
 def sleep(waitTime):
 	print("\nTime passed: {:.2f}s\nAssist: {}".format(time.time()-ts, assistCount))
