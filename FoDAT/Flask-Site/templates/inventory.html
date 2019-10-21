@@ -109,7 +109,7 @@
                     fill : {opacity: 0.5},
                     stroke: {curve: "smooth"},
                     series: [{name: name, data: data}],
-                    xaxis: {labels: {rotate: -90, rotateAlways: true}, categories: dates},
+                    xaxis: {labels: {rotate: -90, rotateAlways: true}, categories: allDates},
                     yaxis: [{
                         min: getMin(inventory[name]),
                         max: getMax(inventory[name]),
@@ -125,20 +125,26 @@
 
                 $("#titolo").text(`Dati per '${name}' degli ultimi ${allDates.length} giorni`);
                 $("tbody").empty();
-                for (let i in dates) {
-                    $("tbody").append(`<tr id="tr${i}"><td>${dates[i]}</td></tr>`);
-                    $(`#tr${i}`).append(`<td>${numeral(inventory[name][i]).format("0,0")}</td>`);
-                    if (i > 0) {
-                        let diff = parseInt(inventory[name][i]) - parseInt(inventory[name][i-1]);
-                        if (diff > 0) {
-                            $(`#tr${i}`).append(`<td><p class="green-text">+${numeral(diff).format("0,0")}<i class="material-icons">arrow_upward</i></p></td>`);
-                        } else if (diff < 0) {
-                            $(`#tr${i}`).append(`<td><p class="red-text">${numeral(diff).format("0,0")}<i class="material-icons">arrow_downward</i></p></td>`);
-                        } else {
-                            $(`#tr${i}`).append(`<td><p class="blue-text">${numeral(diff).format("0,0")}</p></td>`);
+                let x = 0;
+                for (let i in allDates) {
+                    $("tbody").append(`<tr id="tr${i}"><td>${allDates[i]}</td></tr>`);
+                    if (dates.indexOf(allDates[i]) !== -1){
+                        $(`#tr${i}`).append(`<td>${numeral(inventory[name][x]).format("0,0")}</td>`);
+                        if (i > 0) {
+                            let diff = parseInt(inventory[name][x]) - parseInt(inventory[name][x-1]);
+                            if (diff > 0) {
+                                $(`#tr${i}`).append(`<td><p class="green-text">+${numeral(diff).format("0,0")}<i class="material-icons">arrow_upward</i></p></td>`);
+                            } else if (diff < 0) {
+                                $(`#tr${i}`).append(`<td><p class="red-text">${numeral(diff).format("0,0")}<i class="material-icons">arrow_downward</i></p></td>`);
+                            } else {
+                                $(`#tr${i}`).append(`<td><p class="blue-text">${numeral(diff).format("0,0")}</p></td>`);
+                            }
+                        }else{
+                            $(`#tr${i}`).append("<td>No Data</td>");
                         }
+                        x++;
                     }else{
-                        $(`#tr${i}`).append("<td>No Data</td>");
+                        $(`#tr${i}`).append("<td>No Data</td><td>No Data</td>");
                     }
                 }
 

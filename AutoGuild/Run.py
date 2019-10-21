@@ -74,6 +74,7 @@ if __name__ == '__main__':
 	lastAssist = time.time()
 	error = 0
 	errorCount = 0
+	phasesList = []
 
 	try:
 		with mss.mss() as sct:
@@ -135,13 +136,16 @@ if __name__ == '__main__':
 			error = 0
 
 			while "Automate" and not error:
+				phasesList.append(phase)
+
 				if time.time() - lastAssist > maxTimeNoAssists:
 					print("No assist in the last {} seconds. Reloading".format(maxTimeNoAssists))
 					p.press("f5")
+					phasesList.append("Reload")
 
 					if telegramToken and telegramID:
 						try:
-							message = "Bot stuck somewhere, reloading."
+							message = "Bot stuck somewhere, reloading.\nLast {} phases: *{}*".format(100 if len(phasesList) > 100 else len(phasesList), phasesList[-100:])
 							res = requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}&parse_mode=Markdown".format(telegramToken, telegramID, urllib.parse.quote_plus(message)))
 						except Exception as e:
 							print(e)

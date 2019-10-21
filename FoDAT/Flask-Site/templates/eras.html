@@ -168,20 +168,26 @@
 
                 $("#titolo").text(`Dati per '${name}' degli ultimi ${allDates.length} giorni`);
                 $("tbody").empty();
-                for (let i in dates) {
-                    $("tbody").append(`<tr id="tr${i}"><td>${dates[i]}</td></tr>`);
-                    $(`#tr${i}`).append(`<td>${numeral(total[i]).format("0,0")}</td>`);
-                    if (i > 0) {
-                        let diff = parseInt(total[i]) - parseInt(total[i-1]);
-                        if (diff > 0) {
-                            $(`#tr${i}`).append(`<td><p class="green-text">+${numeral(diff).format("0,0")}<i class="material-icons">arrow_upward</i></p></td>`);
-                        } else if (diff < 0) {
-                            $(`#tr${i}`).append(`<td><p class="red-text">${numeral(diff).format("0,0")}<i class="material-icons">arrow_downward</i></p></td>`);
-                        } else {
-                            $(`#tr${i}`).append(`<td><p class="blue-text">${numeral(diff).format("0,0")}</p></td>`);
+                let x = 0;
+                for (let i in allDates) {
+                    $("tbody").append(`<tr id="tr${i}"><td>${allDates[i]}</td></tr>`);
+                    if (dates.indexOf(allDates[i]) !== -1){
+                        $(`#tr${i}`).append(`<td>${numeral(total[x]).format("0,0")}</td>`);
+                        if (i > 0) {
+                            let diff = parseInt(total[x]) - parseInt(total[x-1]);
+                            if (diff > 0) {
+                                $(`#tr${i}`).append(`<td><p class="green-text">+${numeral(diff).format("0,0")}<i class="material-icons">arrow_upward</i></p></td>`);
+                            } else if (diff < 0) {
+                                $(`#tr${i}`).append(`<td><p class="red-text">${numeral(diff).format("0,0")}<i class="material-icons">arrow_downward</i></p></td>`);
+                            } else {
+                                $(`#tr${i}`).append(`<td><p class="blue-text">${numeral(diff).format("0,0")}</p></td>`);
+                            }
+                        }else{
+                            $(`#tr${i}`).append("<td>No Data</td>");
                         }
+                        x++;
                     }else{
-                        $(`#tr${i}`).append("<td>No Data</td>");
+                        $(`#tr${i}`).append("<td>No Data</td><td>No Data</td>");
                     }
                 }
 
