@@ -397,6 +397,12 @@ if __name__ == '__main__':
 		print("Fail-Safe triggered. Stopping")
 	except Exception as e:
 		print("Fatal error: {}".format(e))
+		message = "Error `{}`. Quit".format(e)
+		if telegramToken and telegramID:
+			try:
+				res = requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}&parse_mode=Markdown".format(telegramToken, telegramID, urllib.parse.quote_plus(message)))
+			except Exception as e:
+				print(e)
 
 	if error:
 		print("Exit on phase: {}".format(phase))
@@ -410,4 +416,4 @@ if __name__ == '__main__':
 			except Exception as e:
 				print(e)
 
-		input("\n{}\nPress [ENTER] to continue".format(message))
+	input("\n{}\nPress [ENTER] to continue".format(message))
