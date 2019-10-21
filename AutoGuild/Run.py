@@ -28,15 +28,23 @@ if __name__ == '__main__':
 		exit()
 
 	if "Settings.yml" not in os.listdir("."):
-		open("Settings.yml", "w").write("#Settings\n#Buttons\nenter: EnterGuild.PNG\nguildTab: GuildTab.PNG\nglobalBtn: Global.PNG\nglobalGuild: GlobalGuild.PNG\nmembers: Members.PNG\nquit: QuitGuild.PNG\ndown: Down.PNG\nleave: LeaveGuild.PNG\nbutton0: First.PNG\nbutton1: Next.PNG\nassist: Assist.PNG\nexit: Exit.PNG\n#Template matching threshold\nthreshold: 0.91\n#Starting phase\nphase: -1\n#Wait times in seconds\nwaitAction: 1\nwaitAssist: 1.5\nwaitReload: 10")
+		open("Settings.yml", "w").write("#Settings\n#Buttons\nenter: EnterGuild.PNG\nguildTab: GuildTab.PNG\nfriendsTab: FriendsTab.PNG\nneighborsTab: NeighborsTab.PNG\nglobalBtn: Global.PNG\nglobalGuild: GlobalGuild.PNG\nmembers: Members.PNG\nquit: QuitGuild.PNG\ndown: Down.PNG\nleave: LeaveGuild.PNG\nbutton0: First.PNG\nbutton1: Next.PNG\nassist: Assist.PNG\nexit: Exit.PNG\n#Template matching threshold\nthreshold: 0.91\n#Starting phase\nphase: -1\n#Wait times in seconds\nwaitAction: 1\nwaitAssist: 1.5\nwaitReload: 10\nmaxTimeNoAssists: 60\n#Telegram\ntelegramID:\ntelegramToken:")
 	
-	botToken = ""
-
 	with open("Settings.yml") as _F:
-		settings = yaml.load(_F, Loader=yaml.FullLoader)
+		try:
+			settings = yaml.load(_F, Loader=yaml.FullLoader)
+		except:
+			try:
+				settings = yaml.load(_F)
+			except:
+				print("Can't read Settings.yml. Quit")
+				exit()
+		
 
 	enter = ReadImage(settings["enter"])
-	guildTab = ReadImage(settings["guildTab"])
+	guildTab = ReadImage(settings["guildTab"]) 
+	friendsTab = ReadImage(settings["friendsTab"]) 
+	neighborsTab = ReadImage(settings["neighborsTab"]) 
 	globalBtn = ReadImage(settings["globalBtn"])
 	globalGuild = ReadImage(settings["globalGuild"])
 	members = ReadImage(settings["members"])
@@ -53,20 +61,94 @@ if __name__ == '__main__':
 	waitAction = settings["waitAction"]
 	waitAssist = settings["waitAssist"]
 	waitReload = settings["waitReload"]
+	maxTimeNoAssists = settings["maxTimeNoAssists"]
+
+	telegramID = settings["telegramID"]
+	telegramToken = settings["telegramToken"]
 
 	countMissing = 0
 	assistCount = 0
 	projectsCount = 0
 	guildCount = 0
 	ts = time.time()
+	lastAssist = time.time()
 	error = 0
 	errorCount = 0
 
 	try:
 		with mss.mss() as sct:
 			monitor = sct.monitors[0]
+			
+			if input("Assist neighbors and friends? (y/N): ").lower() == "y":
+				tabs = {0: ReadImage(settings["friendsTab"]), 1: ReadImage(settings["neighborsTab"])}
+				buttons = {0: ReadImage(settings["button0"]), 1: ReadImage(settings["button1"])}
+				tab = 0
+
+				while tab in tabs and not error:
+					w, h, point = search(tabs[tab], threshold)
+
+					if point:
+						p.moveTo(point[0][0] + w//2, point[0][1] + h//2)
+						p.click()
+						sleep(waitAction)
+						button = 0
+
+						while "Looking for buttons":
+							if countMissing > 3:
+								countMissing = 0
+								break
+
+							w, h, point = search(buttons[button], threshold)
+
+							if point:
+								if button == 0:
+									button = 1
+
+								p.moveTo(point[0][0] + w//2, point[0][1] + h//2)
+								p.click()
+								sleep(waitAssist)
+
+								while "Looking for assists":
+									w, h, points = search(assist, threshold)
+
+									if points:
+										countMissing = 0
+										for point in points:
+											p.moveTo(point[0] + w//2, point[1] + h//2)
+											p.click()
+											assistCount += 1
+											sleep(waitAction)
+									else:
+										print("{} not found".format(assist))
+										countMissing += 1
+										break
+							else:
+								print("Error: {} not found".format(buttons[button]))
+								error = 1
+								break
+					else:
+						print("{} not found".format(tabs[tab]))
+					
+					tab += 1
+
+			lastAssist = time.time()
+			error = 0
 
 			while "Automate" and not error:
+				if time.time() - lastAssist > maxTimeNoAssists:
+					print("No assist in the last {} seconds. Reloading".format(maxTimeNoAssists))
+					p.press("f5")
+
+					if telegramToken and telegramID:
+						try:
+							message = "Bot stuck somewhere, reloading."
+							res = requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}&parse_mode=Markdown".format(telegramToken, telegramID, urllib.parse.quote_plus(message)))
+						except Exception as e:
+							print(e)
+
+					sleep(waitReload)
+					lastAssist = time.time()
+					phase = -1
 
 				if phase == -1:
 					w, h, point = search(guildTab, threshold)
@@ -175,6 +257,7 @@ if __name__ == '__main__':
 										p.moveTo(point[0] + w//2, point[1] + h//2)
 										p.click()
 										assistCount += 1
+										lastAssist = time.time()
 										sleep(waitAction)
 										cycle = 1
 								else:
@@ -241,14 +324,7 @@ if __name__ == '__main__':
 						sleep(waitAction*2)
 						phase = 6
 					else:
-						countMissing += 1
 						print("{} not found: {}".format(members, countMissing))
-						if countMissing > 3:
-							countMissing = 0
-							print("Error: {} not found. Where am I? Reloading".format(members))
-							p.press("f5")
-							sleep(waitReload)
-							phase = -1
 
 				#QUIT GUILD BUTTON
 				elif phase == 6:
@@ -274,9 +350,12 @@ if __name__ == '__main__':
 
 							if point:
 								p.moveTo(point[0][0] + w//2, point[0][1] + h//2)
-								for i in range(9):
+								for i in range(8):
 									p.click()
-									time.sleep(0.2)
+									sleep(0.3)
+								
+								sleep(waitAction)
+
 							else:
 								print("Error: {} not found. Where am I?".format(down))
 								phase = 3
@@ -321,9 +400,9 @@ if __name__ == '__main__':
 	if phase != -1:
 		message = "Data\n\tTotal time: {:.2f}s\n\tTotal assists: {} players\n\tEstimated GB's projects: {} projects\n\tTotal guilds: {} guilds\nOther\n\tAssist/sec: {:.2f}a/s\n\t% project/assist: {:.2f}%\n\tPlayers/guild: {:.2f}p/g".format(time.time() - ts, assistCount, projectsCount, guildCount, assistCount/(time.time() - ts), 100/(assistCount/projectsCount) if projectsCount > 0 else 0, assistCount/guildCount if guildCount > 0 else 0)
 
-		if botToken:
+		if telegramToken and telegramID:
 			try:
-				res = requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id=44181058&text={}&parse_mode=Markdown".format(botToken, urllib.parse.quote_plus(message)))
+				res = requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}&parse_mode=Markdown".format(telegramToken, telegramID, urllib.parse.quote_plus(message)))
 			except Exception as e:
 				print(e)
 
