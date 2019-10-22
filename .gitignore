@@ -4,6 +4,7 @@ FoDAT/**/*.png
 **/PyInstaller
 Settings.yml
 test.py
+Data.csv
 *.exe
 *.mp3
 *.TTF

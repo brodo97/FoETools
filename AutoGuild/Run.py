@@ -1,5 +1,6 @@
 try:
-	import time, cv2, mss, numpy as np, pyautogui as p, os, requests, urllib, yaml
+	import time, cv2, mss, numpy as np, pyautogui as p, os, requests, urllib, yaml, sys
+	from datetime import datetime
 except Exception as e:
 	print("Missing lib: {}. Quit".format(e))
 	exit()
@@ -24,56 +25,92 @@ def search(image, t):
 	return (len(template[0]), len(template), list(zip(*np.where(res >= t)[::-1])))
 
 if __name__ == '__main__':
+
+	FILE_NAME = sys.argv[0]
+	TOTAL = [0, 0, 0, 0, 0]
+	SESSIONS = []
+	VERSION = 0.8
+	SETTINGS = {}
+	DEFAULT = {"version": VERSION, "enter": "EnterGuild.PNG", "guildTab": "GuildTab.PNG", "friendsTab": "FriendsTab.PNG", "neighborsTab": "NeighborsTab.PNG", "globalBtn": "Global.PNG", "globalGuild": "GlobalGuild.PNG", "members": "Members.PNG", "quit": "QuitGuild.PNG", "down": "Down.PNG", "leave": "LeaveGuild.PNG", "button0": "First.PNG", "button1": "Next.PNG", "assist": "Assist.PNG", "exit": "Exit.PNG", "threshold": 0.91, "phase": -1, "waitAction": 1, "waitAssist": 1.5, "waitReload": 10, "maxTimeNoAssists": 60, "telegramID": "", "telegramToken": ""}
+	PARAMS = ["#Settings", "#Buttons", "enter", "guildTab", "friendsTab", "neighborsTab", "globalBtn", "globalGuild", "members", "quit", "down", "leave", "button0", "button1", "assist", "exit", "#Template matching threshold", "threshold", "#Starting phase", "phase", "#Wait times in seconds", "waitAction", "waitAssist", "waitReload", "maxTimeNoAssists", "#Telegram", "telegramID", "telegramToken"]
+
 	if input("1) Log into you FoE's account\n2) Keep the window visible\n3) Run it\nIf you want to stop the script, just move the cursor in the top left corner of your monitor.\nUnderstand? (y/N)").lower() != "y":
 		exit()
 
-	if "Settings.yml" not in os.listdir("."):
-		open("Settings.yml", "w").write("#Settings\n#Buttons\nenter: EnterGuild.PNG\nguildTab: GuildTab.PNG\nfriendsTab: FriendsTab.PNG\nneighborsTab: NeighborsTab.PNG\nglobalBtn: Global.PNG\nglobalGuild: GlobalGuild.PNG\nmembers: Members.PNG\nquit: QuitGuild.PNG\ndown: Down.PNG\nleave: LeaveGuild.PNG\nbutton0: First.PNG\nbutton1: Next.PNG\nassist: Assist.PNG\nexit: Exit.PNG\n#Template matching threshold\nthreshold: 0.91\n#Starting phase\nphase: -1\n#Wait times in seconds\nwaitAction: 1\nwaitAssist: 1.5\nwaitReload: 10\nmaxTimeNoAssists: 60\n#Telegram\ntelegramID:\ntelegramToken:")
-	
-	with open("Settings.yml") as _F:
-		try:
-			settings = yaml.load(_F, Loader=yaml.FullLoader)
-		except:
+	if "Settings.yml" in os.listdir("."):
+		with open("Settings.yml") as _F:
 			try:
-				settings = yaml.load(_F)
+				SETTINGS = yaml.load(_F, Loader=yaml.FullLoader)
 			except:
-				print("Can't read Settings.yml. Quit")
-				exit()
-		
+				try:
+					SETTINGS = yaml.load(_F)
+				except:
+					print("Can't read Settings.yml. Quit")
+					exit()
 
-	enter = ReadImage(settings["enter"])
-	guildTab = ReadImage(settings["guildTab"]) 
-	friendsTab = ReadImage(settings["friendsTab"]) 
-	neighborsTab = ReadImage(settings["neighborsTab"]) 
-	globalBtn = ReadImage(settings["globalBtn"])
-	globalGuild = ReadImage(settings["globalGuild"])
-	members = ReadImage(settings["members"])
-	quit = ReadImage(settings["quit"])
-	down = ReadImage(settings["down"])
-	leave = ReadImage(settings["leave"])
-	buttons = {0: ReadImage(settings["button0"]), 1: ReadImage(settings["button1"])}
-	assist = ReadImage(settings["assist"])
-	exit = ReadImage(settings["exit"])
+	if "version" not in SETTINGS or float(SETTINGS["version"]) < VERSION or len(DEFAULT) != len(SETTINGS):
+		with open("Settings.yml", "w") as _F:
+			_F.write("version: {}\n".format(VERSION))
+			for param in PARAMS:
+				if "#" in param:
+					_F.write("{}\n".format(param))
+				else:
+					if param in SETTINGS and SETTINGS[param] != DEFAULT[param]:
+						_F.write("{}: {}\n".format(param, SETTINGS[param]))
+					else:
+						_F.write("{}: {}\n".format(param, DEFAULT[param]))
+						SETTINGS[param] = DEFAULT[param]
 
-	threshold = settings["threshold"]
-	phase = settings["phase"]
+	if "Data.csv" in os.listdir("."):
+		getTotal, getSessions = 0, 0
+		with open("Data.csv") as _F:
+			for line in _F:
+				if "#Time" in line:
+					getTotal = 1
+					continue
+				if "#From" in line:
+					getSessions = 1
+					continue
 
-	waitAction = settings["waitAction"]
-	waitAssist = settings["waitAssist"]
-	waitReload = settings["waitReload"]
-	maxTimeNoAssists = settings["maxTimeNoAssists"]
+				if getTotal:
+					getTotal = 0
+					TOTAL = list(map(int, line.rstrip().split(",")))
+				if getSessions:
+					SESSIONS.append(line.rstrip())
 
-	telegramID = settings["telegramID"]
-	telegramToken = settings["telegramToken"]
+	enter = ReadImage(SETTINGS["enter"])
+	guildTab = ReadImage(SETTINGS["guildTab"]) 
+	friendsTab = ReadImage(SETTINGS["friendsTab"]) 
+	neighborsTab = ReadImage(SETTINGS["neighborsTab"]) 
+	globalBtn = ReadImage(SETTINGS["globalBtn"])
+	globalGuild = ReadImage(SETTINGS["globalGuild"])
+	members = ReadImage(SETTINGS["members"])
+	quit = ReadImage(SETTINGS["quit"])
+	down = ReadImage(SETTINGS["down"])
+	leave = ReadImage(SETTINGS["leave"])
+	buttons = {0: ReadImage(SETTINGS["button0"]), 1: ReadImage(SETTINGS["button1"])}
+	assist = ReadImage(SETTINGS["assist"])
+	exit = ReadImage(SETTINGS["exit"])
 
-	countMissing = 0
+	threshold = SETTINGS["threshold"]
+	phase = SETTINGS["phase"]
+
+	waitAction = SETTINGS["waitAction"]
+	waitAssist = SETTINGS["waitAssist"]
+	waitReload = SETTINGS["waitReload"]
+	maxTimeNoAssists = SETTINGS["maxTimeNoAssists"]
+
+	telegramID = SETTINGS["telegramID"]
+	telegramToken = SETTINGS["telegramToken"]
+
+	missingCount = 0
 	assistCount = 0
 	projectsCount = 0
 	guildCount = 0
+	errorCount = 0
+	reloadCount = 0
 	ts = time.time()
 	lastAssist = time.time()
-	error = 0
-	errorCount = 0
 	phasesList = []
 
 	try:
@@ -81,11 +118,10 @@ if __name__ == '__main__':
 			monitor = sct.monitors[0]
 			
 			if input("Assist neighbors and friends? (y/N): ").lower() == "y":
-				tabs = {0: ReadImage(settings["friendsTab"]), 1: ReadImage(settings["neighborsTab"])}
-				buttons = {0: ReadImage(settings["button0"]), 1: ReadImage(settings["button1"])}
+				tabs = {0: ReadImage(SETTINGS["friendsTab"]), 1: ReadImage(SETTINGS["neighborsTab"])}
 				tab = 0
 
-				while tab in tabs and not error:
+				while tab in tabs:
 					w, h, point = search(tabs[tab], threshold)
 
 					if point:
@@ -95,8 +131,8 @@ if __name__ == '__main__':
 						button = 0
 
 						while "Looking for buttons":
-							if countMissing > 3:
-								countMissing = 0
+							if missingCount > 3:
+								missingCount = 0
 								break
 
 							w, h, point = search(buttons[button], threshold)
@@ -113,7 +149,7 @@ if __name__ == '__main__':
 									w, h, points = search(assist, threshold)
 
 									if points:
-										countMissing = 0
+										missingCount = 0
 										for point in points:
 											p.moveTo(point[0] + w//2, point[1] + h//2)
 											p.click()
@@ -121,11 +157,10 @@ if __name__ == '__main__':
 											sleep(waitAction)
 									else:
 										print("{} not found".format(assist))
-										countMissing += 1
+										missingCount += 1
 										break
 							else:
 								print("Error: {} not found".format(buttons[button]))
-								error = 1
 								break
 					else:
 						print("{} not found".format(tabs[tab]))
@@ -133,14 +168,14 @@ if __name__ == '__main__':
 					tab += 1
 
 			lastAssist = time.time()
-			error = 0
 
-			while "Automate" and not error:
+			while "Automate":
 				phasesList.append(phase)
 
 				if time.time() - lastAssist > maxTimeNoAssists:
 					print("No assist in the last {} seconds. Reloading".format(maxTimeNoAssists))
 					p.press("f5")
+					reloadCount += 1
 					phasesList.append("Reload")
 
 					if telegramToken and telegramID:
@@ -200,9 +235,9 @@ if __name__ == '__main__':
 						sleep(waitAction)
 						p.press("esc")
 						sleep(waitAction)
-						phase = 2
 						guildCount += 1
-						countMissing = 0
+						missingCount = 0
+						phase = 2
 					else:
 						w, h, points = search(assist, threshold)
 
@@ -219,11 +254,12 @@ if __name__ == '__main__':
 						p.moveTo(point[0][0] + w//2, point[0][1] + h//2)
 						p.click()
 						sleep(waitAction)
+						missingCount += 1
 						phase = 0
-						countMissing += 1
-						print("{} not found: {}".format(enter, countMissing))
-						if countMissing > 3:
-							countMissing = 0
+						print("{} not found: {}".format(enter, missingCount))
+
+						if missingCount > 3:
+							missingCount = 0
 							phase = 3
 					else:
 						print("Error: {} not found".format(buttons[1]))
@@ -233,9 +269,9 @@ if __name__ == '__main__':
 				elif phase == 2:
 					button = 0
 
-					while "Looking for buttons" and not error:
-						if countMissing > 1:
-							countMissing = 0
+					while "Looking for buttons":
+						if missingCount > 1:
+							missingCount = 0
 							phase = 3
 							break
 
@@ -248,15 +284,15 @@ if __name__ == '__main__':
 							p.moveTo(point[0][0] + w//2, point[0][1] + h//2)
 							p.click()
 							sleep(waitAssist)
-
 							cycle = 0
+
 							while "Looking for assists":
 								w, h, points = search(assist, threshold)
 
 								if points:
-									if countMissing == 0 and cycle:
+									if missingCount == 0 and cycle:
 										projectsCount += 1
-									countMissing = 0
+									missingCount = 0
 									for point in points:
 										p.moveTo(point[0] + w//2, point[1] + h//2)
 										p.click()
@@ -266,12 +302,11 @@ if __name__ == '__main__':
 										cycle = 1
 								else:
 									cycle = 0
-									countMissing += 1
-									print("{} not found: {}".format(assist, countMissing))
+									missingCount += 1
+									print("{} not found: {}".format(assist, missingCount))
 									break
 						else:
 							print("Error: {} not found".format(buttons[button]))
-							error = 1
 
 				#GLOBAL BUTTON
 				elif phase == 3:
@@ -309,12 +344,11 @@ if __name__ == '__main__':
 						sleep(waitAction)
 						phase = 5
 					else:
-						p.press("esc")
 						sleep(waitAction)
-						countMissing += 1
-						print("{} not found: {}".format(globalGuild, countMissing))
-						if countMissing > 3:
-							countMissing = 0
+						missingCount += 1
+						print("{} not found: {}".format(globalGuild, missingCount))
+						if missingCount > 3:
+							missingCount = 0
 							print("{} not found. Where am I?".format(globalGuild))
 							phase = 3
 
@@ -328,11 +362,11 @@ if __name__ == '__main__':
 						sleep(waitAction*2)
 						phase = 6
 					else:
-						print("{} not found: {}".format(members, countMissing))
+						print("{} not found".format(members))
 
 				#QUIT GUILD BUTTON
 				elif phase == 6:
-					while "Searching" and not error:
+					while "Searching":
 						w, h, point = search(quit, 0.99)
 
 						if point:
@@ -342,10 +376,10 @@ if __name__ == '__main__':
 							phase = 7
 							break
 						else:
-							countMissing += 1
-							print("{} not found: {}".format(quit, countMissing))
-							if countMissing > 12:
-								countMissing = 0
+							missingCount += 1
+							print("{} not found: {}".format(quit, missingCount))
+							if missingCount > 12:
+								missingCount = 0
 								print("Error: {} not found. Where am I?".format(quit))
 								phase = 3
 								break
@@ -373,16 +407,16 @@ if __name__ == '__main__':
 						p.moveTo(point[0][0] + w//2, point[0][1] + h//2)
 						p.click()
 						sleep(waitAction)
+						p.press("esc")
+						sleep(waitAction)
+						p.press("esc")
+						sleep(waitAction)
 						phase = 0
-						p.press("esc")
-						sleep(waitAction)
-						p.press("esc")
-						sleep(waitAction)
 					else:
-						countMissing += 1
-						print("{} not found: {}".format(leave, countMissing))
-						if countMissing > 3:
-							countMissing = 0
+						missingCount += 1
+						print("{} not found: {}".format(leave, missingCount))
+						if missingCount > 3:
+							missingCount = 0
 							print("Error: {} not found. Where am I? Quit".format(leave))
 							p.press("esc")
 							sleep(waitAction)
@@ -403,17 +437,25 @@ if __name__ == '__main__':
 				res = requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}&parse_mode=Markdown".format(telegramToken, telegramID, urllib.parse.quote_plus(message)))
 			except Exception as e:
 				print(e)
-
-	if error:
-		print("Exit on phase: {}".format(phase))
 	
-	if phase != -1:
-		message = "Data\n\tTotal time: {:.2f}s\n\tTotal assists: {} players\n\tEstimated GB's projects: {} projects\n\tTotal guilds: {} guilds\nOther\n\tAssist/sec: {:.2f}a/s\n\t% project/assist: {:.2f}%\n\tPlayers/guild: {:.2f}p/g".format(time.time() - ts, assistCount, projectsCount, guildCount, assistCount/(time.time() - ts), 100/(assistCount/projectsCount) if projectsCount > 0 else 0, assistCount/guildCount if guildCount > 0 else 0)
+	message = "Data\n\tTotal time: {:.2f}s\n\tTotal assists: {} players\n\tEstimated GB's projects: {} projects\n\tTotal guilds: {} guilds\nOther\n\tAssist/sec: {:.2f}a/s\n\t% project/assist: {:.2f}%\n\tPlayers/guild: {:.2f}p/g".format(time.time() - ts, assistCount, projectsCount, guildCount, assistCount/(time.time() - ts), 100/(assistCount/projectsCount) if projectsCount > 0 else 0, assistCount/guildCount if guildCount > 0 else 0)
 
-		if telegramToken and telegramID:
-			try:
-				res = requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}&parse_mode=Markdown".format(telegramToken, telegramID, urllib.parse.quote_plus(message)))
-			except Exception as e:
-				print(e)
+	if telegramToken and telegramID:
+		try:
+			res = requests.get("https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}&parse_mode=Markdown".format(telegramToken, telegramID, urllib.parse.quote_plus(message)))
+		except Exception as e:
+			print(e)
+
+	TOTAL[0] += int(time.time() - ts)
+	TOTAL[1] += assistCount
+	TOTAL[2] += guildCount
+	TOTAL[3] += projectsCount
+	TOTAL[4] += reloadCount
+
+	with open("Data.csv", "w") as _F:
+		_F.write("#Automatically generated by {}\n[Total]\n#Time,Assists,Guilds,Projects,Reloads\n{},{},{},{},{}\n[Sessions]\n#From,To,Assists,Guilds,Projects,Reloads\n".format(FILE_NAME, *TOTAL))
+		for session in SESSIONS:
+			_F.write(session + "\n")
+		_F.write("{},{},{},{},{},{}\n".format(str(datetime.fromtimestamp(ts))[:-7], str(datetime.now())[:-7], assistCount, guildCount, projectsCount, reloadCount))
 
 	input("\n{}\nPress [ENTER] to continue".format(message))
