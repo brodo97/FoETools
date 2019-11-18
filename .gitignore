@@ -1,6 +1,8 @@
 ant_full.js
-flask_app.py
 FoDAT/**/*.png
+FoDAT/**/*.jpg
+FoDAT/**/*.gif
+FoDAT/**/*.py
 **/PyInstaller
 Settings.yml
 test.py

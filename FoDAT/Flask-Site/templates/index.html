@@ -1,85 +1,87 @@
-{% extends "base.html" %}
+{% extends "bases/base.html" %}
 {% block content %}
-<br>
-<div class="row">
-	<div class="card col s12 m8 offset-m2 l6 offset-l3">
-		<div class="card-content">
-			<p>Che fai? Entri o ti registri? Vedi tu</p>
-		</div>
-		<div class="card-tabs">
-			<ul class="tabs tabs-fixed-width">
-				<li class="tab">
-					<a class="active" href="#login" id="inbtn">Entra</a>
-				</li>
-				<li class="tab">
-					<a href="#signup">Registrati</a>
-				</li>
-			</ul>
-		</div>
-		<div class="card-content">
-			<div id="login" class="row">
-			    <div class="input-field col s12">
-                    <input id="username" type="text" onkeypress="if(event.which == 13) {$('#loginBtn').click()}">
-                    <label for="username">Username</label>
-                </div>
-				<div class="input-field col s12">
-                    <input id="password" type="password" onkeypress="if(event.which == 13) {$('#loginBtn').click()}">
-                    <label for="password">Password</label>
-                </div>
-                <div class="col s6 offset-s3 center">
-                    <button id="loginBtn" class="btn waves-effect waves-light blue darken-2">
-                        Entra
-                        <i class="material-icons right">arrow_right</i>
-                    </button>
-                </div>
-			</div>
-			<div id="signup" class="row">
-			    <div class="input-field col s12">
-                    <input id="newUsername" type="text" onkeypress="if(event.which == 13) {$('#signupBtn').click()}">
-                    <label for="newUsername">Username</label>
-                </div>
-				<div class="input-field col s12">
-                    <input id="newPassword" type="password" onkeypress="if(event.which == 13) {$('#signupBtn').click()}">
-                    <label for="newPassword">Password</label>
-                </div>
-                <div class="input-field col s12">
-                    <input id="newPasswordCheck" type="password" onkeypress="if(event.which == 13) {$('#signupBtn').click()}">
-                    <label for="newPasswordCheck">Ripeti password</label>
-                </div>
-                <div class="input-field col s12">
-                    <input id="token" type="password" onkeypress="if(event.which == 13) {$('#signupBtn').click()}">
-                    <label for="token">Token</label>
-                </div>
-                <div class="col s6 offset-s3 center">
-                    <button id="signupBtn" class="btn waves-effect waves-light blue darken-2">
-                        Registrati
-                        <i class="material-icons right">arrow_right</i>
-                    </button>
-                </div>
-			</div>
-		</div>
-		<div class="card-action">
-            <p id="result"></p>
-		    <div id="spinner" class="preloader-wrapper big">
-		        <div class="spinner-layer spinner-green-only">
-                    <div class="circle-clipper left">
-                        <div class="circle"></div>
-                    </div><div class="gap-patch">
-                        <div class="circle"></div>
-                    </div><div class="circle-clipper right">
-                        <div class="circle"></div>
+<main class="container">
+    <div class="row">
+    	<div class="card col s12 m8 offset-m2 l6 offset-l3">
+    		<div class="card-content">
+    			<p>Che fai? Entri o ti registri? Vedi tu</p>
+    		</div>
+    		<div class="card-tabs">
+    			<ul class="tabs tabs-fixed-width">
+    				<li class="tab">
+    					<a class="active" href="#login" id="inbtn">Entra</a>
+    				</li>
+    				<li class="tab">
+    					<a href="#signup" id="signbtn">Registrati</a>
+    				</li>
+    			</ul>
+    		</div>
+    		<div class="card-content">
+    			<div id="login" class="row">
+    			    <div class="input-field col s12">
+                        <input id="username" type="text" onkeypress="if(event.which == 13) {$('#loginBtn').click()}">
+                        <label for="username">Username</label>
+                    </div>
+    				<div class="input-field col s12">
+                        <input id="password" type="password" onkeypress="if(event.which == 13) {$('#loginBtn').click()}">
+                        <label for="password">Password</label>
+                    </div>
+                    <div class="col s6 offset-s3 center">
+                        <button id="loginBtn" class="btn waves-effect waves-light blue darken-2">
+                            Entra
+                            <i class="material-icons right">arrow_right</i>
+                        </button>
+                    </div>
+    			</div>
+    			<div id="signup" class="row">
+    			    <div class="input-field col s12">
+                        <input id="newUsername" type="text" onkeypress="if(event.which == 13) {$('#signupBtn').click()}">
+                        <label for="newUsername">Username</label>
+                    </div>
+    				<div class="input-field col s12">
+                        <input id="newPassword" type="password" onkeypress="if(event.which == 13) {$('#signupBtn').click()}">
+                        <label for="newPassword">Password</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input id="newPasswordCheck" type="password" onkeypress="if(event.which == 13) {$('#signupBtn').click()}">
+                        <label for="newPasswordCheck">Ripeti password</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input id="token" type="password" onkeypress="if(event.which == 13) {$('#signupBtn').click()}">
+                        <label for="token">Token</label>
+                    </div>
+                    <div class="col s6 offset-s3 center">
+                        <button id="signupBtn" class="btn waves-effect waves-light blue darken-2">
+                            Registrati
+                            <i class="material-icons right">arrow_right</i>
+                        </button>
+                    </div>
+    			</div>
+    		</div>
+    		<div class="card-action">
+                <p id="result"></p>
+    		    <div id="spinner" class="preloader-wrapper big">
+    		        <div class="spinner-layer spinner-green-only">
+                        <div class="circle-clipper left">
+                            <div class="circle"></div>
+                        </div><div class="gap-patch">
+                            <div class="circle"></div>
+                        </div><div class="circle-clipper right">
+                            <div class="circle"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-		</div>
-	</div>
-</div>
-
-<h5 class="center">Powered by <a target="_blank" rel="noopener noreferrer" href="https://materializecss.com">Materialize</a>,</h5>
-<h5 class="center"><a target="_blank" rel="noopener noreferrer" href="https://www.python.org">Python</a></h5>
-<h5 class="center">and <a target="_blank" rel="noopener noreferrer" href="http://eu.pythonanywhere.com">PythonAnywhere</a></h5>
-<h5 class="center"><a href="#about" class="modal-trigger">About</a> this project</h5>
-
+    		</div>
+    	</div>
+    </div>
+    <h5 class="center">Powered by <a target="_blank" rel="noopener noreferrer" href="https://www.python.org">Python</a>,</h5>
+    <h5 class="center"><a target="_blank" rel="noopener noreferrer" href="http://eu.pythonanywhere.com">PythonAnywhere</a>,</h5>
+    <h5 class="center"><a target="_blank" rel="noopener noreferrer" href="https://materializecss.com">Materialize</a>,</h5>
+    <h5 class="center"><a target="_blank" rel="noopener noreferrer" href="https://jquery.com">jQuery</a>,</h5>
+    <h5 class="center"><a target="_blank" rel="noopener noreferrer" href="http://numeraljs.com">Numerals</a>,</h5>
+    <h5 class="center">and <a target="_blank" rel="noopener noreferrer" href="https://apexcharts.com/">ApexCharts</a></h5>
+    <h5 class="center"><a href="#about" class="modal-trigger">About</a> this project</h5>
+</main>
 <div id="about" class="modal">
     <div class="modal-content">
         <h3>FoDAT</h3>
@@ -107,6 +109,17 @@
         $('.tabs').tabs();
         $('.modal').modal();
     });
+    window.onload = function() {
+        $("#slide-out").empty();
+        $("#slide-out").append("<li><a class='subheader'>Form</a></li>");
+        if (M.Sidenav.getInstance($(".sidenav")).isOpen){
+            $("#slide-out").append("<li><a class='waves-effect' onclick='document.getElementById(\"inbtn\").click();'>Entra</a></li>");
+            $("#slide-out").append("<li><a class='waves-effect' onclick='document.getElementById(\"signbtn\").click();'>Registrati</a></li>");
+        }else{
+            $("#slide-out").append("<li><a class='waves-effect' onclick='document.getElementById(\"inbtn\").click();M.Sidenav.getInstance($(\".sidenav\")).close();'>Entra</a></li>");
+            $("#slide-out").append("<li><a class='waves-effect' onclick='document.getElementById(\"signbtn\").click();M.Sidenav.getInstance($(\".sidenav\")).close();'>Registrati</a></li>");
+        }
+    };
     $("#signupBtn").click(function(){
         let username = $("#newUsername").val();
         let pass1 = $("#newPassword").val();

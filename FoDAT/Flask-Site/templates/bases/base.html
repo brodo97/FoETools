@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link href="{{ url_for('static', filename='css/materialize.css') }}" media="screen,projection" rel="stylesheet" type="text/css">
+	<meta content="width=device-width, initial-scale=1.0" name="viewport">
+	<meta name="description" content="Sito per analisi dati di FoE (Forge of Empires).">
+	<meta name="author" content="Mattia Brunelli">
+	<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'/>
+	<title>Brodino</title>
+	<link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='soup.ico') }}"/>
+	<meta charset="utf-8">
+	{% block head %}{% endblock %}
+	<style>
+		header, main, footer {
+			padding-left: 300px;
+		}
+
+		@media only screen and (max-width : 992px) {
+			header, main, footer {
+				padding-left: 0;
+			}
+		}
+
+		@media only screen and (min-width : 993px) {
+			.container {
+				width: 90%;
+				max-width: 90%;
+			}
+		}
+
+		ul > li > a.waves-effect{
+			color: #FFFFFF !important;
+		}
+
+		ul > li > a.subheader{
+			color: #AAAAAA !important;
+		}
+
+	</style>
+</head>
+<body class="blue lighten-5">
+	<header class="hide-on-large-only">
+		<nav>
+			<div class="nav-wrapper indigo">
+				<a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+				<a class="brand-logo center white-text" href="/">{% if user %}{{ user.name }} on {{user.selected_world}}{% else %}Sito utile{% endif %}</a>
+			</div>
+		</nav>
+	</header>
+	<ul id="slide-out" class="sidenav sidenav-fixed blue-grey darken-3">
+		{% if user and user.is_authenticated %}
+		<li>
+		    <div class="user-view">
+    			<img class="circle" src="https://cdn2.iconfinder.com/data/icons/audio-16/96/user_avatar_profile_login_button_account_member-512.png">
+    			<a><span class="white-text name">{{ user.name }}</span></a>
+    			{% if user.guild %}<a><span class="white-text">Guild: {{ user.guild.name }}</span></a><br>{% endif %}
+    		</div>
+		</li>
+		<li><a class="waves-effect" href="/logout">Logout</a></li>
+		<li class="no-padding">
+			<ul class="collapsible collapsible-accordion">
+				<li>
+					<a class="collapsible-header waves-effect">Change world ({{user.selected_world}})<i class="material-icons white-text">arrow_drop_down</i></a>
+					<div class="collapsible-body blue-grey darken-3">
+						<ul>
+						    {% for world in user.worlds %}
+							<li><a class="white-text" href="/changeWorld/{{world}}">{{ world }}</a></li>
+							{% endfor %}
+						</ul>
+					</div>
+				</li>
+			</ul>
+		</li>
+		<li><div class="divider" disabled></div></li>
+		{% endif %}
+		{% block nav %}{% endblock %}
+		<li><div class="divider" disabled></div></li>
+		<li><a class="subheader">Navigate</a></li>
+		<li><a class="waves-effect" href="/">Back</a></li>
+	</ul>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script src="{{url_for('static', filename='js/materialize.js')}}" type="text/javascript"></script>
+	{% block content %}{% endblock %}
+	<script>
+		$(document).ready(function(){
+			$('.sidenav').sidenav();
+		});
+	</script>
+</body>
+</html>

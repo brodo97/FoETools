@@ -1,0 +1,60 @@
+{% extends "/bases/base.html" %}
+{% block content %}
+<main class="container">
+    <h2 class="center black-text">Filtri</h2>
+    <div class="row">
+    	<div class="col s12 m8 offset-m2">
+    		<div class="card">
+    			<div class="card-content">
+    				<span class="card-title">Lista filtri</span>
+    				<a href="#!" onclick="newFilter()"><i class="material-icons green-text">add</i></a>
+    				<ul id="filter_list" class="collapsible">
+                    </ul>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+</main>
+<script>
+    $(document).ready(function(){
+        $('.collapsible').collapsible();
+    });
+
+    let options = {"userdata": "Classifica", "goods": "beni", "eras": "Ere", "inventory": "Inventario", "army": "Esercito", "guild": "Gilda"};
+
+    function newFilter(){
+        $("#filter_list").append(`
+            <li>
+                <div class="collapsible-header"><a href="#!" onclick="$(this).closest('li').remove();"><i class="material-icons red-text">close</i></a><p>Filter*</p></div>
+                <div class="collapsible-body row">
+                    <div class="col s12 m6">
+                        <div class="switch">
+                            <label>
+                                Off<input type="checkbox"><span class="lever"></span>On
+                            </label>
+                        </div>
+                    </div>
+                    <div class="input-field col s12 m6">
+                        <select onchange="getval(this);">
+                            <option value="" disabled selected>Grafico:</option>
+                            <option value="userdata">Classifica</option>
+                            <option value="goods">Beni</option>
+                            <option value="eras">Ere</option>
+                            <option value="inventory">Inventario</option>
+                            <option value="army">Esercito</option>
+                            <option value="guild">Beni gilda</option>
+                        </select>
+                        <label>Graifco a cui applicare il filtro</label>
+                    </div>
+                </div>
+            </li>
+        `);
+        $('select').formSelect();
+    }
+
+    function getval(sel){
+        sel.closest("li").children(".collapsible-header").children("p").text(options[sel.value]);
+    }
+</script>
+
+{% endblock %}

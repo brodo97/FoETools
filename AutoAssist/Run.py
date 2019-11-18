@@ -76,4 +76,4 @@ with mss.mss() as sct:
 		
 		tab += 1
 
-print("\nResults:\nTotal time: {:.2f}s\nTotal assist: {} players".format(time.time() - ts, assistCount))
+input("\nResults:\nTotal time: {:.2f}s\nTotal assist: {} players\nPress [ENTER] to continue".format(time.time() - ts, assistCount))
