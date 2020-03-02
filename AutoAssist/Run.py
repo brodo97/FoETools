@@ -14,7 +14,7 @@ def search(name):
 	res = cv2.matchTemplate(capture, template, cv2.TM_CCOEFF_NORMED)
 	return (len(template[0]), len(template), list(zip(*np.where(res >= threshold)[::-1])))
 
-if input("1) Log into you FoE's account\n2) Keep the window visible\n3) Run it\nIf you want to stop the script, just move the cursor in the top left corner of your monitor.\nUnderstand? (y/N)").lower() != "y":
+if input("1) Log into your FoE's account\n2) Keep the window visible\n3) Run it\nIf you want to stop the script, just move the cursor in the top left corner of your monitor.\nUnderstand? (y/N)").lower() != "y":
 	exit()
 
 tabs = {0: "GuildTab.PNG", 1: "FriendsTab.PNG"}
