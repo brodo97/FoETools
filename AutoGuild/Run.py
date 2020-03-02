@@ -47,7 +47,7 @@ if __name__ == '__main__':
     DEFAULT = {"version": VERSION, "enter": "EnterGuild.PNG", "guildTab": "GuildTab.PNG", "friendsTab": "FriendsTab.PNG", "neighborsTab": "NeighborsTab.PNG", "globalBtn": "Global.PNG", "globalGuild": "GlobalGuild.PNG", "members": "Members.PNG", "quit": "QuitGuild.PNG", "down": "Down.PNG", "leave": "LeaveGuild.PNG", "button0": "First.PNG", "button1": "Next.PNG", "assist": "Assist.PNG", "tavern": "Tavern.PNG", "exit": "Exit.PNG", "threshold": 0.91, "phase": -1, "waitAction": 1, "waitAssist": 1.5, "waitReload": 10, "maxTimeNoAssists": 60, "telegramID": "", "telegramToken": ""}
     PARAMS = ["#Settings", "#Buttons", "enter", "guildTab", "friendsTab", "neighborsTab", "globalBtn", "globalGuild", "members", "quit", "down", "leave", "button0", "button1", "assist", "tavern", "exit", "#Template matching threshold", "threshold", "#Starting phase", "phase", "#Wait times in seconds", "waitAction", "waitAssist", "waitReload", "maxTimeNoAssists", "#Telegram", "telegramID", "telegramToken"]
 
-    if input("1) Log into you FoE's account\n2) Keep the window visible\n3) Run it\nIf you want to stop the script, just move the cursor in the top left corner of your monitor.\nUnderstand? (y/N): ").lower() != "y":
+    if input("1) Log into your FoE's account\n2) Keep the window visible\n3) Run it\nIf you want to stop the script, just move the cursor in the top left corner of your monitor.\nUnderstand? (y/N): ").lower() != "y":
         exit()
 
     if "Settings.yml" in os.listdir("."):
